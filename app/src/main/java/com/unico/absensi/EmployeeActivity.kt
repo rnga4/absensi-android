@@ -26,8 +26,7 @@ class EmployeeActivity : AppCompatActivity() {
         btnPublic.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
 
         findViewById<TextView>(R.id.tvLogout).setOnClickListener {
-            Thread { AbsensiApi.logout() }.start()
-            finish()
+            LogoutHelper.confirmAndLogout(this)
         }
 
         val prefsUser = Prefs.current()

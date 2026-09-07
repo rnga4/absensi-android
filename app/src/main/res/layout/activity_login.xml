@@ -138,17 +138,20 @@
                     app:cornerRadius="6dp"
                     app:backgroundTint="@color/accent" />
 
-                <TextView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPublic"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:gravity="center"
-                    android:padding="8dp"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
                     android:text="Lihat Index Publik"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    app:backgroundTint="@color/accent_light"
+                    app:cornerRadius="6dp"
+                    app:strokeColor="@color/border_dark"
+                    app:strokeWidth="1.5dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

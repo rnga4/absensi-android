@@ -78,8 +78,7 @@ class AdminActivity : AppCompatActivity() {
         setupFabRotation()
 
         findViewById<TextView>(R.id.tvLogout).setOnClickListener {
-            Thread { AbsensiApi.logout() }.start()
-            finish()
+            LogoutHelper.confirmAndLogout(this)
         }
 
         etSearch.addTextChangedListener(object : TextWatcher {

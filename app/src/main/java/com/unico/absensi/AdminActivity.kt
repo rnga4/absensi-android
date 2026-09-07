@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class AdminActivity : AppCompatActivity() {
@@ -27,12 +28,8 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var llEmptyState: LinearLayout
     private lateinit var adapter: AdminAdapter
 
-    private val tvStat by lazy { mapOf(
-        "total" to findViewById<android.view.View>(R.id.statTotal).findViewById<TextView>(R.id.tvStatValue),
-        "hadir" to findViewById<android.view.View>(R.id.statHadir).findViewById<TextView>(R.id.tvStatValue),
-        "telat" to findViewById<android.view.View>(R.id.statTelat).findViewById<TextView>(R.id.tvStatValue),
-        "belum" to findViewById<android.view.View>(R.id.statBelum).findViewById<TextView>(R.id.tvStatValue)
-    ) }
+    private val statCards = mutableMapOf<String, MaterialCardView>()
+    private val statValue = mutableMapOf<String, TextView>()
 
     private var fullRows = listOf<AdminRow>()
     private var currentFilter = ""
@@ -53,6 +50,23 @@ class AdminActivity : AppCompatActivity() {
             ContextCompat.getColor(this, R.color.accent)
         )
 
+        statCards["total"] = findViewById<MaterialCardView>(R.id.statTotal)
+        statCards["hadir"] = findViewById<MaterialCardView>(R.id.statHadir)
+        statCards["telat"] = findViewById<MaterialCardView>(R.id.statTelat)
+        statCards["belum"] = findViewById<MaterialCardView>(R.id.statBelum)
+
+        statValue["total"] = statCards["total"]!!.findViewById(R.id.tvStatValue)
+        statValue["hadir"] = statCards["hadir"]!!.findViewById(R.id.tvStatValue)
+        statValue["telat"] = statCards["telat"]!!.findViewById(R.id.tvStatValue)
+        statValue["belum"] = statCards["belum"]!!.findViewById(R.id.tvStatValue)
+
+        bindStatLabelColors()
+
+        statCards["total"]!!.setOnClickListener { setFilter("") }
+        statCards["hadir"]!!.setOnClickListener { setFilter("hadir") }
+        statCards["telat"]!!.setOnClickListener { setFilter("telat") }
+        statCards["belum"]!!.setOnClickListener { setFilter("belum") }
+
         adapter = AdminAdapter(emptyList()) { emp ->
             startActivity(Intent(this, HistoryActivity::class.java)
                 .putExtra("emp_code", emp.code)
@@ -68,11 +82,6 @@ class AdminActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<TextView>(R.id.filterAll).setOnClickListener { setFilter("") }
-        findViewById<TextView>(R.id.filterHadir).setOnClickListener { setFilter("hadir") }
-        findViewById<TextView>(R.id.filterTelat).setOnClickListener { setFilter("telat") }
-        findViewById<TextView>(R.id.filterBelum).setOnClickListener { setFilter("belum") }
-
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {
@@ -83,7 +92,18 @@ class AdminActivity : AppCompatActivity() {
 
         fabRefresh.setOnClickListener { fetchData() }
         swipeRefresh.setOnRefreshListener { fetchData() }
+        setFilter("")
         fetchData()
+    }
+
+    private fun bindStatLabelColors() {
+        val labels = listOf(
+            "total" to "TOTAL", "hadir" to "HADIR",
+            "telat" to "TELAT", "belum" to "BELUM"
+        )
+        for ((key, label) in labels) {
+            statCards[key]!!.findViewById<TextView>(R.id.tvStatLabel).text = label
+        }
     }
 
     private fun setupFabRotation() {
@@ -117,10 +137,10 @@ class AdminActivity : AppCompatActivity() {
 
                 tvDate.text = "MONITOR ${dash.date}"
 
-                tvStat["total"]?.text = dash.stat.total.toString()
-                tvStat["hadir"]?.text = dash.stat.hadir.toString()
-                tvStat["telat"]?.text = dash.stat.telat.toString()
-                tvStat["belum"]?.text = dash.stat.belum.toString()
+                statValue["total"]?.text = dash.stat.total.toString()
+                statValue["hadir"]?.text = dash.stat.hadir.toString()
+                statValue["telat"]?.text = dash.stat.telat.toString()
+                statValue["belum"]?.text = dash.stat.belum.toString()
 
                 val rows = mutableListOf<AdminRow>()
                 for (dept in dash.departments) {
@@ -137,21 +157,26 @@ class AdminActivity : AppCompatActivity() {
 
     private fun setFilter(f: String) {
         currentFilter = f
-        val all = findViewById<TextView>(R.id.filterAll)
-        val hadir = findViewById<TextView>(R.id.filterHadir)
-        val telat = findViewById<TextView>(R.id.filterTelat)
-        val belum = findViewById<TextView>(R.id.filterBelum)
-        listOf(all, hadir, telat, belum).forEach {
-            it.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-            it.background = ContextCompat.getDrawable(this, R.drawable.bg_tag_pill)
+        for ((key, card) in statCards) {
+            val active = when (key) {
+                "total" -> f.isEmpty()
+                else -> key == f
+            }
+            card.setCardBackgroundColor(
+                ContextCompat.getColor(this, if (active) R.color.accent else R.color.surface)
+            )
+            card.setStrokeColor(
+                ContextCompat.getColor(this, if (active) R.color.accent else R.color.border_crisp)
+            )
+            (
+                card.findViewById<TextView>(R.id.tvStatValue)
+            ).setTextColor(
+                ContextCompat.getColor(this, if (active) R.color.text_on_accent else R.color.text_primary)
+            )
+            card.findViewById<TextView>(R.id.tvStatLabel).setTextColor(
+                ContextCompat.getColor(this, if (active) R.color.text_on_accent else R.color.text_secondary)
+            )
         }
-        val active = when (f) {
-            "hadir" -> hadir
-            "telat" -> telat
-            "belum" -> belum
-            else -> all
-        }
-        active.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
         applyFilterAndSearch()
     }
 

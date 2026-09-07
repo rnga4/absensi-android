@@ -19,3 +19,6 @@ captures/
 # Logs
 build.log
 *.log
+
+# Source icon assets (resized copies live in res/)
+icon/

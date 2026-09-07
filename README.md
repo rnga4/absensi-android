@@ -1,23 +1,23 @@
-# 📱 Absensi Android
+# Absensi Android
 
-> *Native Android app untuk tracking absensi karyawan — Swiss editorial, monokrom, & modern-minimalist.*
+> *Native Android app untuk tracking absensi karyawan - Swiss editorial, monokrom, & modern-minimalist.*
 
-Aplikasi Android native (Kotlin) untuk memantau karyawan yang **belum absen**. Terhubung ke API internal, menampilkan daftar per departemen dengan orientasi desain **Komi Store** (`komistore.app`) — modern minimalist SaaS + Swiss-style typography + subtle neo-brutalist.
-
----
-
-## ✨ Fitur
-
-- 📋 **Daftar real-time** karyawan yang belum absen, dikelompokkan per departemen
-- 🔍 **Pencarian** nama karyawan (filter dinamis per departemen)
-- 🔄 **Pull-to-refresh custom** — progress strip Swiss yang mengisi + badge status `[ SYNCING... ]` → `[ DONE ]`
-- 🔔 **Notifikasi berkala** via WorkManager (interval 30 menit)
-- 🌐 **Failover otomatis** antar endpoint API (jika satu mati, coba yang lain)
-- 📱 **Adaptive launcher icon** untuk semua ukuran layar
+Aplikasi Android native (Kotlin) untuk memantau karyawan yang **belum absen**. Terhubung ke API internal, menampilkan daftar per departemen dengan orientasi desain **Komi Store** (`komistore.app`) - modern minimalist SaaS + Swiss-style typography + subtle neo-brutalist.
 
 ---
 
-## 🛠️ Tech Stack
+## Fitur
+
+- **Daftar real-time** karyawan yang belum absen, dikelompokkan per departemen
+- **Pencarian** nama karyawan (filter dinamis per departemen)
+- **Pull-to-refresh custom** - progress strip Swiss yang mengisi + badge status `[ SYNCING... ]` -> `[ DONE ]`
+- **Notifikasi berkala** via WorkManager (interval 30 menit)
+- **Failover otomatis** antar endpoint API (jika satu mati, coba yang lain)
+- **Adaptive launcher icon** untuk semua ukuran layar
+
+---
+
+## Tech Stack
 
 | Komponen | Teknologi |
 |---|---|
@@ -30,7 +30,7 @@ Aplikasi Android native (Kotlin) untuk memantau karyawan yang **belum absen**. T
 
 ---
 
-## 🏗️ Build
+## Build
 
 ```bash
 # Build Debug APK
@@ -47,7 +47,7 @@ Output: `app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
-## 🌐 API
+## API
 
 App memanggil endpoint dengan **failover otomatis**:
 1. `http://192.168.1.37:9790/api_public.php`
@@ -73,7 +73,7 @@ App memanggil endpoint dengan **failover otomatis**:
 
 ---
 
-## 🎨 Design System — Komi Store Aesthetic
+## Design System - Komi Store Aesthetic
 
 > *Modern Minimalist SaaS + Editorial Swiss-Style Typography + Subtle Neo-Brutalist Elements*
 
@@ -83,12 +83,12 @@ App memanggil endpoint dengan **failover otomatis**:
 
 **Typography & Layout:**
 - Hero headline `28sp` bold `#09090B`, letter-spacing `-0.03`
-- Section header Swiss: `/// TEKNOLOGI — 4 KARYAWAN` (uppercase, spacing `0.10`)
+- Section header Swiss: `/// TEKNOLOGI - 4 KARYAWAN` (uppercase, spacing `0.10`)
 - Technical pills: `[ SYSTEM / LIVE FEED ]`, `[ BELUM ABSEN ]`, `[ SYNCING... ]`
 
 ---
 
-## 📁 Struktur Utama
+## Struktur Utama
 
 ```
 app/src/main/
@@ -108,13 +108,13 @@ app/src/main/
 
 ---
 
-## 📦 Release / APK
+## Release / APK
 
-- `absensi.apk` — shortcut APK compiled di root project
+- `absensi.apk` - shortcut APK compiled di root project
 - Versi: `1.0` (`versionCode 1`) · `applicationId: com.unico.absensi`
 
 ---
 
-## 📄 Lisensi
+## Lisensi
 
-© 2026 — Internal project. Untuk keperluan perusahaan/perorangan.
+(c) 2026 - Internal project. Untuk keperluan perusahaan/perorangan.

@@ -10,12 +10,16 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Absensi">
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AdminActivity" />
+        <activity android:name=".EmployeeActivity" />
+        <activity android:name=".HistoryActivity" />
+        <activity android:name=".MainActivity" />
     </application>
 </manifest>

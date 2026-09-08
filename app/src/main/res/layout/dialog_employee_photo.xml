@@ -78,7 +78,7 @@
             android:text="Tidak Ada Foto"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
-            android:visibility="GONE" />
+            android:visibility="gone" />
     </FrameLayout>
 
     <LinearLayout

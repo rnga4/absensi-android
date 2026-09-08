@@ -109,6 +109,7 @@ class AbsensiAdapter(
     }
 
     inner class EmployeeVH(view: View) : RecyclerView.ViewHolder(view) {
+        private val flAvatar: View = view.findViewById(R.id.flAvatar)
         private val ivAvatar: ImageView = view.findViewById(R.id.ivAvatar)
         private val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         private val tvName: TextView = view.findViewById(R.id.tvEmpName)
@@ -182,6 +183,7 @@ class AbsensiAdapter(
                 val bmp = photoCache[latest.empCode]
                 onAvatarClick?.invoke(latest, bmp)
             }
+            flAvatar.setOnClickListener(handleAvatarClick)
             ivAvatar.setOnClickListener(handleAvatarClick)
             tvAvatar.setOnClickListener(handleAvatarClick)
 

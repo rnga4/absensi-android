@@ -30,10 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private enum class RefreshState { IDLE, SYNCING, DONE }
 
-    private val urls = listOf(
-        "http://192.168.1.37:9790/api_public.php",
-        "http://100.102.13.11:9790/api_public.php"
-    )
+    private val urls: List<String>
+        get() = ApiConfig.url(ApiConfig.PUBLIC)
 
     private lateinit var client: OkHttpClient
 
@@ -79,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         client = OkHttpClient.Builder()
             .cookieJar(PersistentCookieStorage(this))
-            .connectTimeout(4, TimeUnit.SECONDS)
+            .connectTimeout(2500, TimeUnit.MILLISECONDS)
             .readTimeout(4, TimeUnit.SECONDS)
             .build()
 
@@ -102,6 +100,15 @@ class MainActivity : AppCompatActivity() {
         })
 
         swipeRefresh.setOnRefreshListener { fetchData(0) }
+
+        // Render cached data immediately for zero-delay startup
+        val cachedJson = Prefs.getCachedPublicJson()
+        if (!cachedJson.isNullOrBlank()) {
+            try {
+                bindData(JSONObject(cachedJson))
+            } catch (_: Exception) {}
+        }
+
         fetchData(0)
     }
 
@@ -229,17 +236,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchData(urlIndex: Int) {
-        if (urlIndex >= urls.size) {
+        val currentUrls = urls
+        if (urlIndex >= currentUrls.size) {
             runOnUiThread {
                 stopRefreshAnim()
-                tvDate.text = "Gagal konek ke server"
-                llEmptyState.visibility = if (allRows.isEmpty()) View.VISIBLE else View.GONE
+                if (allRows.isEmpty()) {
+                    tvDate.text = "Gagal konek ke server"
+                    llEmptyState.visibility = View.VISIBLE
+                }
             }
             return
         }
 
         startRefreshAnim()
-        val request = Request.Builder().url(urls[urlIndex]).build()
+        val targetUrl = currentUrls[urlIndex]
+        val request = Request.Builder().url(targetUrl).build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
@@ -248,12 +259,21 @@ class MainActivity : AppCompatActivity() {
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 val body = response.body?.string() ?: "{}"
-                try {
-                    val json = JSONObject(body)
-                    runOnUiThread { bindData(json) }
-                } catch (e: Exception) {
-                    fetchData(urlIndex + 1)
+                if (response.isSuccessful) {
+                    for (base in ApiConfig.baseUrls) {
+                        if (targetUrl.startsWith(base)) {
+                            Prefs.saveLastBaseUrl(base)
+                            break
+                        }
+                    }
+                    try {
+                        val json = JSONObject(body)
+                        Prefs.saveCachedPublicJson(body)
+                        runOnUiThread { bindData(json) }
+                        return
+                    } catch (_: Exception) {}
                 }
+                fetchData(urlIndex + 1)
             }
         })
     }

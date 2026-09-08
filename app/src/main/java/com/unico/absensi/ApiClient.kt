@@ -21,7 +21,7 @@ class ApiClient(context: Context) {
 
     private val client = OkHttpClient.Builder()
         .cookieJar(cookieStorage)
-        .connectTimeout(5, TimeUnit.SECONDS)
+        .connectTimeout(2500, TimeUnit.MILLISECONDS)
         .readTimeout(8, TimeUnit.SECONDS)
         .build()
 
@@ -72,7 +72,10 @@ class ApiClient(context: Context) {
                 val resp = client.newCall(Request.Builder().url(url).get().build()).execute()
                 resp.use {
                     val bytes = it.body?.bytes()
-                    if (bytes != null && it.isSuccessful) return bytes
+                    if (bytes != null && it.isSuccessful) {
+                        saveWorkingBaseUrlFrom(url)
+                        return bytes
+                    }
                     if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
                 }
             } catch (e: Exception) {
@@ -91,7 +94,10 @@ class ApiClient(context: Context) {
                 val resp = client.newCall(Request.Builder().url(url).get().build()).execute()
                 resp.use {
                     val bytes = it.body?.bytes()
-                    if (bytes != null && it.isSuccessful) return bytes
+                    if (bytes != null && it.isSuccessful) {
+                        saveWorkingBaseUrlFrom(url)
+                        return bytes
+                    }
                     if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
                 }
             } catch (e: Exception) {
@@ -144,7 +150,10 @@ class ApiClient(context: Context) {
             try {
                 block(url).use { resp ->
                     val body = resp.body?.string() ?: ""
-                    if (resp.isSuccessful) return body
+                    if (resp.isSuccessful) {
+                        saveWorkingBaseUrlFrom(url)
+                        return body
+                    }
                     if (resp.code == 401) {
                         throw HttpException(resp.code, body)
                     }
@@ -155,6 +164,15 @@ class ApiClient(context: Context) {
             }
         }
         throw lastError ?: IOException("Semua server tidak dapat dijangkau")
+    }
+
+    private fun saveWorkingBaseUrlFrom(fullUrl: String) {
+        for (base in ApiConfig.baseUrls) {
+            if (fullUrl.startsWith(base)) {
+                Prefs.saveLastBaseUrl(base)
+                break
+            }
+        }
     }
 
     private fun withQuery(base: String, query: Map<String, String>): String {

@@ -15,5 +15,13 @@ object ApiConfig {
     const val VOTE = "/api_vote.php"
     const val LOGOUT = "/logout.php"
 
-    fun url(path: String): List<String> = baseUrls.map { it + path }
+    fun getOrderedBaseUrls(): List<String> {
+        val lastUrl = Prefs.getLastBaseUrl()
+        if (lastUrl != null && baseUrls.contains(lastUrl)) {
+            return listOf(lastUrl) + baseUrls.filter { it != lastUrl }
+        }
+        return baseUrls
+    }
+
+    fun url(path: String): List<String> = getOrderedBaseUrls().map { it + path }
 }

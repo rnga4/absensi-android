@@ -92,7 +92,7 @@ class EmployeeActivity : AppCompatActivity() {
                 pbAttendance.visibility = View.GONE
 
                 if (profile != null) {
-                    tvLoveCount.text = "❤️ ${profile.loveCount} Vote Diterima"
+                    tvLoveCount.text = "❤️ ${profile.loveCount}"
                 }
 
                 if (bmp != null) {

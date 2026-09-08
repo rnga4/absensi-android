@@ -184,13 +184,18 @@ private class PersistentCookieStorage(private val context: Context) : CookieJar 
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
         val value = prefs.getString("PHPSESSID", null) ?: return emptyList()
-        val sessionCookie = Cookie.Builder()
-            .domain(url.host)
-            .path("/")
+        val builder = Cookie.Builder()
             .name("PHPSESSID")
             .value(value)
-            .build()
-        return listOf(sessionCookie)
+            .path("/")
+
+        val host = url.host
+        if (host.matches(Regex("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$"))) {
+            builder.hostOnlyDomain(host)
+        } else {
+            builder.domain(host)
+        }
+        return listOf(builder.build())
     }
 
     fun clear() {

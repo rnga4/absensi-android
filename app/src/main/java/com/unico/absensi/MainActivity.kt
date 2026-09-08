@@ -307,6 +307,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Optimistic UI Update (instant response)
+        val optimisticHasLoved = !employee.hasLoved
+        val optimisticCount = if (optimisticHasLoved) employee.loveCount + 1 else (employee.loveCount - 1).coerceAtLeast(0)
+        updateVoteInList(employee.empCode, optimisticCount, optimisticHasLoved)
+
         Thread {
             try {
                 val result = AbsensiApi.vote(employee.empCode)
@@ -316,12 +321,14 @@ class MainActivity : AppCompatActivity() {
                         val msg = if (result.state == "removed") "Love kamu dihapus." else "Love kamu ditambahkan ❤️"
                         android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
                     } else {
+                        updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
                         val msg = result.message ?: "Gagal memberikan vote."
                         android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 runOnUiThread {
+                    updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
                     android.widget.Toast.makeText(this, "Gagal menghubungi server.", android.widget.Toast.LENGTH_SHORT).show()
                 }
             }

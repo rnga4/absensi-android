@@ -81,9 +81,11 @@ class MainActivity : AppCompatActivity() {
             .readTimeout(4, TimeUnit.SECONDS)
             .build()
 
-        adapter = AbsensiAdapter(emptyList()) { employee ->
-            handleVote(employee)
-        }
+        adapter = AbsensiAdapter(
+            items = emptyList(),
+            onVoteClick = { employee -> handleVote(employee) },
+            onAvatarClick = { employee, bmp -> showPhotoPreviewDialog(employee, bmp) }
+        )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
@@ -401,5 +403,85 @@ class MainActivity : AppCompatActivity() {
             }
         }
         adapter.updateVoteState(empCode, loveCount, hasLoved)
+    }
+
+    private fun showPhotoPreviewDialog(employee: ListRow.Employee, cachedBitmap: Bitmap?) {
+        val dialog = android.app.Dialog(this)
+        dialog.setContentView(R.layout.dialog_employee_photo)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.90).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val tvName = dialog.findViewById<TextView>(R.id.tvName)
+        val tvDept = dialog.findViewById<TextView>(R.id.tvDept)
+        val btnClose = dialog.findViewById<TextView>(R.id.btnClose)
+        val ivPhoto = dialog.findViewById<ImageView>(R.id.ivPhoto)
+        val pbLoading = dialog.findViewById<android.widget.ProgressBar>(R.id.pbLoading)
+        val tvNoPhoto = dialog.findViewById<TextView>(R.id.tvNoPhoto)
+        val btnZoomIn = dialog.findViewById<View>(R.id.btnZoomIn)
+        val btnZoomOut = dialog.findViewById<View>(R.id.btnZoomOut)
+        val btnZoomReset = dialog.findViewById<View>(R.id.btnZoomReset)
+        val tvZoomScale = dialog.findViewById<TextView>(R.id.tvZoomScale)
+
+        tvName.text = employee.name
+        tvDept.text = employee.dept.uppercase()
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+
+        var currentZoom = 1.0f
+
+        fun updateScale() {
+            ivPhoto.animate().scaleX(currentZoom).scaleY(currentZoom).setDuration(120).start()
+            tvZoomScale.text = "${(currentZoom * 100).toInt()}%"
+        }
+
+        btnZoomIn.setOnClickListener {
+            if (currentZoom < 4.0f) {
+                currentZoom += 0.4f
+                updateScale()
+            }
+        }
+        btnZoomOut.setOnClickListener {
+            if (currentZoom > 0.6f) {
+                currentZoom -= 0.4f
+                updateScale()
+            }
+        }
+        btnZoomReset.setOnClickListener {
+            currentZoom = 1.0f
+            updateScale()
+        }
+
+        if (cachedBitmap != null) {
+            pbLoading.visibility = View.GONE
+            ivPhoto.setImageBitmap(cachedBitmap)
+            ivPhoto.visibility = View.VISIBLE
+        } else {
+            pbLoading.visibility = View.VISIBLE
+            ivPhoto.visibility = View.GONE
+            tvNoPhoto.visibility = View.GONE
+
+            Thread {
+                val bmp = try {
+                    AbsensiApi.getPublicPhotoByEmp(employee.empCode)
+                } catch (e: Exception) {
+                    null
+                }
+                runOnUiThread {
+                    pbLoading.visibility = View.GONE
+                    if (bmp != null) {
+                        adapter.addPhoto(employee.empCode, bmp)
+                        ivPhoto.setImageBitmap(bmp)
+                        ivPhoto.visibility = View.VISIBLE
+                    } else {
+                        tvNoPhoto.visibility = View.VISIBLE
+                    }
+                }
+            }.start()
+        }
+
+        dialog.show()
     }
 }

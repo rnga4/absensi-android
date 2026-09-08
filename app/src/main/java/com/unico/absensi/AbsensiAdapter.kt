@@ -13,7 +13,8 @@ import kotlin.math.abs
 
 class AbsensiAdapter(
     private var items: List<ListRow>,
-    private val onVoteClick: ((ListRow.Employee) -> Unit)? = null
+    private val onVoteClick: ((ListRow.Employee) -> Unit)? = null,
+    private val onAvatarClick: ((ListRow.Employee, Bitmap?) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -175,6 +176,14 @@ class AbsensiAdapter(
                 setStroke(strokePx, borderColor)
             }
             tvAvatar.background = drawable
+
+            val handleAvatarClick = View.OnClickListener {
+                val latest = currentItem ?: return@OnClickListener
+                val bmp = photoCache[latest.empCode]
+                onAvatarClick?.invoke(latest, bmp)
+            }
+            ivAvatar.setOnClickListener(handleAvatarClick)
+            tvAvatar.setOnClickListener(handleAvatarClick)
 
             val cached = photoCache[item.empCode]
             if (cached != null) {

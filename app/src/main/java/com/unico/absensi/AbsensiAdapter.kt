@@ -11,8 +11,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
 
-class AbsensiAdapter(private var items: List<ListRow>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class AbsensiAdapter(
+    private var items: List<ListRow>,
+    private val onVoteClick: ((ListRow.Employee) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         const val TYPE_HEADER = 0
@@ -85,11 +87,25 @@ class AbsensiAdapter(private var items: List<ListRow>) :
         private val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         private val tvName: TextView = view.findViewById(R.id.tvEmpName)
         private val tvDept: TextView = view.findViewById(R.id.tvEmpDept)
+        private val btnVote: View = view.findViewById(R.id.btnVote)
+        private val tvVoteCount: TextView = view.findViewById(R.id.tvVoteCount)
 
         fun bind(item: ListRow.Employee) {
             tvName.text = item.name
             tvDept.text = item.dept
             tvAvatar.text = getInitials(item.name)
+
+            tvVoteCount.text = item.loveCount.toString()
+            if (item.hasLoved) {
+                btnVote.setBackgroundResource(R.drawable.bg_vote_active)
+                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.badge_danger_text))
+            } else {
+                btnVote.setBackgroundResource(R.drawable.bg_vote_inactive)
+                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
+            }
+            btnVote.setOnClickListener {
+                onVoteClick?.invoke(item)
+            }
 
             val colorRes = avatarColors[abs(item.name.hashCode()) % avatarColors.size]
             val color = ContextCompat.getColor(itemView.context, colorRes)
@@ -106,7 +122,7 @@ class AbsensiAdapter(private var items: List<ListRow>) :
 
             val cached = photoCache[item.empCode]
             if (cached != null) {
-                ivAvatar.setImageBitmap(cached)
+                ivAvatar.setImageDrawable(cached.toCircularDrawable(ivAvatar.resources))
                 ivAvatar.visibility = View.VISIBLE
                 tvAvatar.visibility = View.GONE
             } else {

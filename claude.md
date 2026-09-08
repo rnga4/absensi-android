@@ -67,11 +67,13 @@ absensi-android/
 │       └── src/main/
 │           ├── AndroidManifest.xml  # Manifest with permissions & WorkManager setup
 │           ├── java/com/unico/absensi/
-│           │   ├── MainActivity.kt        # Index publik: daftar belum absen, search, refresh animation
-│           │   ├── AbsensiAdapter.kt      # Adapter index publik (Swiss headers, avatar foto bulat)
-│           │   ├── Models.kt              # ListRow sealed class (DeptHeader & Employee) + UserProfile
+│           │   ├── MainActivity.kt        # Index publik: daftar belum absen, search, refresh animation, vote ❤️
+│           │   ├── AbsensiAdapter.kt      # Adapter index publik (Swiss headers, avatar foto bulat, vote button)
+│           │   ├── Models.kt              # ListRow (DeptHeader & Employee + loveCount/hasLoved), VoteResult, UserProfile
 │           │   ├── AbsensiWorker.kt       # Periodic WorkManager worker (30 min interval)
 │           │   ├── NotificationHelper.kt  # Notification channel & manager builder
+│           │   ├── CircularPhoto.kt       # Helper bitmap to circular drawable
+│           │   ├── ExitHelper.kt          # Double-tap back to exit helper
 │           │   ├── LoginActivity.kt       # Login (api_login.php), route ke Admin/Employee
 │           │   ├── AdminActivity.kt       # Dashboard admin (stat cards, filter, search)
 │           │   ├── AdminAdapter.kt        # Adapter admin (avatar foto karyawan bulat + cache)
@@ -79,15 +81,17 @@ absensi-android/
 │           │   ├── HistoryActivity.kt     # Riwayat kehadiran (pagination)
 │           │   ├── HistoryAdapter.kt      # Adapter riwayat
 │           │   ├── ProfileSettingsActivity.kt # Pengaturan profil (ganti foto & password)
-│           │   ├── ApiClient.kt           # OkHttp client, cookie PHPSESSID persist, mulipart upload
-│           │   ├── ApiConfig.kt           # Base URLs failover + endpoint paths
-│           │   ├── AbsensiApi.kt          # Wrapper API (login/dashboard/history/profile/photo)
+│           │   ├── ApiClient.kt           # OkHttp client, cookie PHPSESSID persist, multipart upload, vote POST
+│           │   ├── ApiConfig.kt           # Base URLs failover + endpoint paths (VOTE: api_vote.php)
+│           │   ├── AbsensiApi.kt          # Wrapper API (login/dashboard/history/profile/photo/vote)
 │           │   ├── LogoutHelper.kt        # Konfirmasi logout
 │           │   └── Prefs.kt               # Sesi login (SharedPreferences)
 │           └── res/
 │               ├── drawable/
 │               │   ├── bg_avatar_circle.xml # Avatar bulat (oval + stroke) — dipakai semua avatar
 │               │   ├── bg_avatar_box.xml    # (legacy rounded square)
+│               │   ├── bg_vote_active.xml   # Soft red pill active state (❤️ vote)
+│               │   ├── bg_vote_inactive.xml # Crisp gray pill inactive state (❤️ vote)
 │               │   ├── bg_hero_card.xml    # Minimalist SaaS hero card container
 │               │   ├── bg_search.xml       # Crisp search input field shape
 │               │   ├── bg_tag_pill.xml     # Technical pill tag background
@@ -96,7 +100,7 @@ absensi-android/
 │               │   ├── activity_main.xml          # Komi Store header & search layout
 │               │   ├── activity_employee.xml      # Profil user: avatar bulat, status, tombol
 │               │   ├── activity_profile_settings.xml # Ganti foto + ganti password
-│               │   ├── item_employee.xml          # Item index publik (avatar foto bulat)
+│               │   ├── item_employee.xml          # Item index publik (avatar foto bulat + vote pill)
 │               │   ├── item_admin_employee.xml    # Item admin (avatar foto bulat)
 │               │   ├── item_history.xml / item_department_header.xml / item_stat.xml
 │               │   └── activity_history.xml / activity_login.xml / activity_admin.xml
@@ -123,12 +127,26 @@ Expected Response JSON:
     {
       "department": "Teknologi",
       "employees": [
-        { "emp_code": "E001", "name": "Budi Santoso" }
+        { 
+          "emp_code": "E001", 
+          "name": "Budi Santoso",
+          "love_count": 2,
+          "my_vote": true
+        }
       ]
     }
   ]
 }
 ```
+
+---
+
+## ❤️ Single Love Vote Feature (Apresiasi Karyawan Belum Absen)
+
+Aplikasi Android terintegrasi dengan backend `api_vote.php` untuk fitur apresiasi harian:
+- **Endpoint**: `POST /api_vote.php` (`action=vote`, `emp_code=<code>`).
+- **Autentikasi Sesi**: Memerlukan sesi login (`PHPSESSID`). Jika user mengeklik tombol vote saat status *guest* (belum login), app akan memberikan notifikasi dan membuka `LoginActivity`.
+- **State Toggle**: Memberi/menarik vote ❤️ secara realtime. Respon server `{ success, state ('added'|'removed'), my_vote, love_count }` akan langsung memperbarui UI pill button tanpa reload ulang seluruh daftar.
 
 ---
 
@@ -144,6 +162,7 @@ Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/use
 | `profile.php?format=json` | POST multipart `action=photo` + file `photo` | Upload foto profil (max 2MB, jpg/png/webp) |
 | `photo.php?u=<username>` | GET | Ambil foto (perlu sesi; employee hanya fotonya sendiri) |
 | `photo.php?emp=<emp_code>&pub=1` | GET | Ambil foto publik by emp_code (dipakai index publik & admin) |
+| `api_vote.php` | POST | Vote ❤️ karyawan (`action=vote`, `emp_code`) |
 
 ### Alur
 - **Halaman profil user normal** (`EmployeeActivity`): avatar bulat menampilkan foto asli; **ketuk avatar** → buka `ProfileSettingsActivity`.
@@ -151,5 +170,6 @@ Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/use
 - **Index Publik** (`MainActivity`/`AbsensiAdapter`) & **Dashboard Admin** (`AdminAdapter`): avatar menampilkan **foto karyawan bulat** (di-cache per emp_code, dimuat async, `itemView.post` saat selesai — jangan panggil `notifyItemChanged` dari thread background). Fallback inisial lingkaran berwarna.
 
 ### Konvensi
-- Semua avatar = **circle** (`drawable/bg_avatar_circle.xml`), diterapkan `background` oval + `clipToOutline="true"` **langsung pada `ImageView`/`TextView`** (bukan parent FrameLayout) — ini yang terbukti menghasilkan lingkaran yang pas.
+- Foto profil dibuat bulat dengan **`RoundedBitmapDrawableFactory.create()` + `isCircular = true`** (helper `com.unico.absensi.CircularPhoto.kt` → `Bitmap.toCircularDrawable(resources)`), lalu `ivAvatar.setImageDrawable(...)`. Helper ini dipakai bersama di halaman profil user, Index Publik, dashboard admin, dan pengaturan profil. **JANGAN bergantung pada `android:clipToOutline`** untuk memotong foto — tidak konsisten di Android 11 (API ≤30) sehingga foto tampil kotak; `setCircular` bekerja bulat di semua versi.
+- TextView inisial sudah bulat via `shape="oval"` (tidak butuh clip). Background oval di XML boleh dibiarkan sebagai fallback.
 - Untuk foto di adapter: selalu `photoCache[synchronizedMap]` + `Thread` + `itemView.post {}` (hindari `CalledFromWrongThreadException`).

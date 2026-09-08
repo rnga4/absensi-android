@@ -1,12 +1,10 @@
 package com.unico.absensi
 
-import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.animation.LinearInterpolator
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class AdminActivity : AppCompatActivity() {
 
@@ -24,7 +21,6 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var tvDate: TextView
     private lateinit var etSearch: EditText
-    private lateinit var fabRefresh: FloatingActionButton
     private lateinit var llEmptyState: LinearLayout
     private lateinit var adapter: AdminAdapter
 
@@ -33,7 +29,6 @@ class AdminActivity : AppCompatActivity() {
 
     private var fullRows = listOf<AdminRow>()
     private var currentFilter = ""
-    private var rotateAnimator: ObjectAnimator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +38,6 @@ class AdminActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         tvDate = findViewById(R.id.tvDate)
         etSearch = findViewById(R.id.etSearch)
-        fabRefresh = findViewById(R.id.fabRefresh)
         llEmptyState = findViewById(R.id.llEmptyState)
 
         swipeRefresh.setColorSchemeColors(
@@ -75,8 +69,6 @@ class AdminActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        setupFabRotation()
-
         findViewById<TextView>(R.id.tvLogout).setOnClickListener {
             LogoutHelper.confirmAndLogout(this)
         }
@@ -89,7 +81,6 @@ class AdminActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        fabRefresh.setOnClickListener { fetchData() }
         swipeRefresh.setOnRefreshListener { fetchData() }
         setFilter("")
         fetchData()
@@ -105,17 +96,8 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupFabRotation() {
-        rotateAnimator = ObjectAnimator.ofFloat(fabRefresh, "rotation", 0f, 360f).apply {
-            duration = 800
-            repeatCount = ObjectAnimator.INFINITE
-            interpolator = LinearInterpolator()
-        }
-    }
-
     private fun fetchData() {
         swipeRefresh.isRefreshing = true
-        if (rotateAnimator?.isStarted != true) rotateAnimator?.start()
 
         Thread {
             val dash = try {
@@ -125,10 +107,6 @@ class AdminActivity : AppCompatActivity() {
             }
             runOnUiThread {
                 swipeRefresh.isRefreshing = false
-                if (rotateAnimator?.isStarted == true) {
-                    rotateAnimator?.cancel()
-                    fabRefresh.rotation = 0f
-                }
                 if (dash == null) {
                     tvDate.text = "Gagal konek ke server"
                     return@runOnUiThread
@@ -210,5 +188,9 @@ class AdminActivity : AppCompatActivity() {
 
         adapter.updateItems(rows)
         llEmptyState.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    override fun onBackPressed() {
+        ExitHelper.confirmAndExit(this)
     }
 }

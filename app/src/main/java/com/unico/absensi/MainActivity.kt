@@ -1,7 +1,6 @@
 package com.unico.absensi
 
 import android.Manifest
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.os.Build
@@ -9,7 +8,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.animation.LinearInterpolator
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,7 +20,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -47,7 +44,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var tvDate: TextView
     private lateinit var etSearch: EditText
-    private lateinit var fabRefresh: FloatingActionButton
     private lateinit var llEmptyState: android.widget.LinearLayout
     private lateinit var adapter: AbsensiAdapter
     private lateinit var refreshIndicator: LinearLayout
@@ -55,7 +51,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var refreshStrip: View
 
     private var allRows = listOf<ListRow>()
-    private var rotateAnimator: ObjectAnimator? = null
     private var stripAnimator: ValueAnimator? = null
     private var stripState = RefreshState.IDLE
 
@@ -70,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         tvDate = findViewById(R.id.tvDate)
         etSearch = findViewById(R.id.etSearch)
-        fabRefresh = findViewById(R.id.fabRefresh)
         llEmptyState = findViewById(R.id.llEmptyState)
         refreshIndicator = findViewById(R.id.refreshIndicator)
         tvRefreshStatus = findViewById(R.id.tvRefreshStatus)
@@ -83,11 +77,15 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.getColor(this, R.color.bg_primary)
         )
 
-        adapter = AbsensiAdapter(emptyList())
+        Prefs.init(this)
+        AbsensiApi.init(ApiClient(this))
+
+        adapter = AbsensiAdapter(emptyList()) { employee ->
+            handleVote(employee)
+        }
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
-        setupFabAnimation()
         NotificationHelper.createChannel(this)
         requestNotifPermission()
         scheduleWorker()
@@ -100,33 +98,17 @@ class MainActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        fabRefresh.setOnClickListener { fetchData(0) }
         swipeRefresh.setOnRefreshListener { fetchData(0) }
         fetchData(0)
     }
 
-    private fun setupFabAnimation() {
-        rotateAnimator = ObjectAnimator.ofFloat(fabRefresh, "rotation", 0f, 360f).apply {
-            duration = 800
-            repeatCount = ObjectAnimator.INFINITE
-            interpolator = LinearInterpolator()
-        }
-    }
-
     private fun startRefreshAnim() {
         swipeRefresh.isRefreshing = true
-        if (rotateAnimator?.isStarted != true) {
-            rotateAnimator?.start()
-        }
         showRefreshState(RefreshState.SYNCING)
     }
 
     private fun stopRefreshAnim() {
         swipeRefresh.isRefreshing = false
-        if (rotateAnimator?.isStarted == true) {
-            rotateAnimator?.cancel()
-            fabRefresh.rotation = 0f
-        }
         showRefreshState(RefreshState.DONE)
         refreshIndicator.postDelayed({
             if (stripState == RefreshState.DONE) {
@@ -301,7 +283,9 @@ class MainActivity : AppCompatActivity() {
                             ListRow.Employee(
                                 empCode = emp.optString("emp_code", "-"),
                                 name = emp.optString("name", "-"),
-                                dept = deptName
+                                dept = deptName,
+                                loveCount = emp.optInt("love_count", 0),
+                                hasLoved = emp.optBoolean("my_vote", false)
                             )
                         )
                     }
@@ -309,6 +293,49 @@ class MainActivity : AppCompatActivity() {
             }
         }
         allRows = rows
+        filterList(etSearch.text.toString())
+    }
+
+    private fun handleVote(employee: ListRow.Employee) {
+        if (!Prefs.isLoggedIn()) {
+            android.widget.Toast.makeText(
+                this,
+                "Login dulu untuk memberi vote.",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+            startActivity(android.content.Intent(this, LoginActivity::class.java))
+            return
+        }
+
+        Thread {
+            try {
+                val result = AbsensiApi.vote(employee.empCode)
+                runOnUiThread {
+                    if (result.success) {
+                        updateVoteInList(employee.empCode, result.loveCount, result.myVote)
+                        val msg = if (result.state == "removed") "Love kamu dihapus." else "Love kamu ditambahkan ❤️"
+                        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    } else {
+                        val msg = result.message ?: "Gagal memberikan vote."
+                        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    android.widget.Toast.makeText(this, "Gagal menghubungi server.", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun updateVoteInList(empCode: String, loveCount: Int, hasLoved: Boolean) {
+        allRows = allRows.map { row ->
+            if (row is ListRow.Employee && row.empCode == empCode) {
+                row.copy(loveCount = loveCount, hasLoved = hasLoved)
+            } else {
+                row
+            }
+        }
         filterList(etSearch.text.toString())
     }
 }

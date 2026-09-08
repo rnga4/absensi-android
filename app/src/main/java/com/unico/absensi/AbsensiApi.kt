@@ -39,6 +39,18 @@ object AbsensiApi {
         Prefs.clear()
     }
 
+    fun vote(empCode: String): VoteResult {
+        val raw = api().vote(empCode)
+        val json = JSONObject(raw)
+        return VoteResult(
+            success = json.optBoolean("success", false),
+            state = json.optString("state", ""),
+            myVote = json.optBoolean("my_vote", false),
+            loveCount = json.optInt("love_count", 0),
+            message = if (json.has("message")) json.optString("message") else null
+        )
+    }
+
     fun adminDashboard(filter: String = ""): AdminDashboard {
         val query = mutableMapOf<String, String>()
         if (filter.isNotEmpty()) query["f"] = filter

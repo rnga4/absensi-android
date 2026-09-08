@@ -36,6 +36,15 @@ class ApiClient(context: Context) {
         }
     }
 
+    /** POST vote (love toggle) for employee. Returns JSON body. */
+    fun vote(empCode: String): String {
+        val body = "action=vote&emp_code=${encode(empCode)}"
+            .toRequestBody(formType)
+        return requestWithFailover(ApiConfig.url(ApiConfig.VOTE)) { url ->
+            client.newCall(Request.Builder().url(url).post(body).build()).execute()
+        }
+    }
+
     /** GET JSON with login session. Returns body or throws. */
     fun get(path: String, query: Map<String, String> = emptyMap()): String {
         return requestWithFailover(ApiConfig.url(path)) { base ->

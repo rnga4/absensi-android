@@ -2,8 +2,22 @@ package com.unico.absensi
 
 sealed class ListRow {
     data class DeptHeader(val name: String, val count: Int = 0) : ListRow()
-    data class Employee(val empCode: String, val name: String, val dept: String) : ListRow()
+    data class Employee(
+        val empCode: String,
+        val name: String,
+        val dept: String,
+        val loveCount: Int = 0,
+        val hasLoved: Boolean = false
+    ) : ListRow()
 }
+
+data class VoteResult(
+    val success: Boolean,
+    val state: String = "",
+    val myVote: Boolean = false,
+    val loveCount: Int = 0,
+    val message: String? = null
+)
 
 sealed class AdminRow {
     data class Dept(val name: String, val count: Int) : AdminRow()

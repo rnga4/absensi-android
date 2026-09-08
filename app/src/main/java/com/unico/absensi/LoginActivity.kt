@@ -70,4 +70,8 @@ class LoginActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+    override fun onBackPressed() {
+        ExitHelper.confirmAndExit(this)
+    }
 }

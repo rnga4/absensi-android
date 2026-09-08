@@ -97,7 +97,7 @@ class AdminAdapter(
 
             val cached = photoCache[emp.code]
             if (cached != null) {
-                ivAvatar.setImageBitmap(cached)
+                ivAvatar.setImageDrawable(cached.toCircularDrawable(ivAvatar.resources))
                 ivAvatar.visibility = View.VISIBLE
                 tvAvatar.visibility = View.GONE
             } else {

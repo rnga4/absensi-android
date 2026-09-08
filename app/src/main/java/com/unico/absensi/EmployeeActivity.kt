@@ -71,7 +71,7 @@ class EmployeeActivity : AppCompatActivity() {
             }
             runOnUiThread {
                 if (bmp != null) {
-                    ivAvatar.setImageBitmap(bmp)
+                    ivAvatar.setImageDrawable(bmp.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
                     tvAvatarInitial.visibility = View.GONE
                 }
@@ -98,5 +98,9 @@ class EmployeeActivity : AppCompatActivity() {
                 tvOut.text = t.outTime
             }
         }.start()
+    }
+
+    override fun onBackPressed() {
+        ExitHelper.confirmAndExit(this)
     }
 }

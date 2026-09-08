@@ -132,7 +132,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             val bmp = AbsensiApi.getPhoto(username)
             runOnUiThread {
                 if (bmp != null) {
-                    ivAvatar.setImageBitmap(bmp)
+                    ivAvatar.setImageDrawable(bmp.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
                     tvAvatarInitial.visibility = View.GONE
                 } else {
@@ -172,7 +172,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
                 if (msg != null) {
                     tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.success))
                     tvPassMessage.text = msg
-                    ivAvatar.setImageBitmap(bitmap)
+                    ivAvatar.setImageDrawable(bitmap.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
                     tvAvatarInitial.visibility = View.GONE
                 } else {

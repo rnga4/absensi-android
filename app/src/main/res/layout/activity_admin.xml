@@ -161,7 +161,7 @@
                 android:clipToPadding="false"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:paddingBottom="96dp" />
+                android:paddingBottom="20dp" />
 
             <LinearLayout
                 android:id="@+id/llEmptyState"
@@ -191,17 +191,4 @@
             </LinearLayout>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabRefresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="24dp"
-        android:src="@android:drawable/ic_popup_sync"
-        app:backgroundTint="@color/accent"
-        app:elevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@android:color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

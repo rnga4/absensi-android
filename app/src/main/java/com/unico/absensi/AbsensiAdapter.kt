@@ -51,6 +51,18 @@ class AbsensiAdapter(
         photoCache[empCode] = bitmap
     }
 
+    fun updateVoteState(empCode: String, loveCount: Int, hasLoved: Boolean) {
+        val index = items.indexOfFirst { it is ListRow.Employee && it.empCode == empCode }
+        if (index != -1) {
+            val emp = items[index] as ListRow.Employee
+            val updated = emp.copy(loveCount = loveCount, hasLoved = hasLoved)
+            val mutableList = items.toMutableList()
+            mutableList[index] = updated
+            items = mutableList
+            notifyItemChanged(index, "VOTE_UPDATE")
+        }
+    }
+
     override fun getItemViewType(position: Int): Int =
         when (items[position]) {
             is ListRow.DeptHeader -> TYPE_HEADER
@@ -73,6 +85,19 @@ class AbsensiAdapter(
         }
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.contains("VOTE_UPDATE") && holder is EmployeeVH) {
+            val item = items[position] as? ListRow.Employee ?: return
+            holder.bindVoteStateOnly(item)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     override fun getItemCount() = items.size
 
     class HeaderVH(view: View) : RecyclerView.ViewHolder(view) {
@@ -88,13 +113,10 @@ class AbsensiAdapter(
         private val tvName: TextView = view.findViewById(R.id.tvEmpName)
         private val tvDept: TextView = view.findViewById(R.id.tvEmpDept)
         private val btnVote: View = view.findViewById(R.id.btnVote)
+        private val tvVoteIcon: TextView = view.findViewById(R.id.tvVoteIcon)
         private val tvVoteCount: TextView = view.findViewById(R.id.tvVoteCount)
 
-        fun bind(item: ListRow.Employee) {
-            tvName.text = item.name
-            tvDept.text = item.dept
-            tvAvatar.text = getInitials(item.name)
-
+        fun bindVoteStateOnly(item: ListRow.Employee) {
             tvVoteCount.text = item.loveCount.toString()
             if (item.hasLoved) {
                 btnVote.setBackgroundResource(R.drawable.bg_vote_active)
@@ -103,19 +125,51 @@ class AbsensiAdapter(
                 btnVote.setBackgroundResource(R.drawable.bg_vote_inactive)
                 tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
             }
+        }
+
+        fun bind(item: ListRow.Employee) {
+            tvName.text = item.name
+            tvDept.text = item.dept
+            tvAvatar.text = getInitials(item.name)
+
+            bindVoteStateOnly(item)
+
             btnVote.setOnClickListener {
+                tvVoteIcon.animate().cancel()
+                btnVote.animate().cancel()
+
+                tvVoteIcon.scaleX = 1.0f
+                tvVoteIcon.scaleY = 1.0f
+                btnVote.scaleX = 1.0f
+                btnVote.scaleY = 1.0f
+
+                tvVoteIcon.animate()
+                    .scaleX(1.5f)
+                    .scaleY(1.5f)
+                    .setDuration(130)
+                    .setInterpolator(android.view.animation.OvershootInterpolator(3.0f))
+                    .withEndAction {
+                        tvVoteIcon.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(120)
+                            .start()
+                    }
+                    .start()
+
                 btnVote.animate()
-                    .scaleX(1.15f)
-                    .scaleY(1.15f)
-                    .setDuration(90)
+                    .scaleX(1.12f)
+                    .scaleY(1.12f)
+                    .setDuration(100)
                     .withEndAction {
                         btnVote.animate()
                             .scaleX(1.0f)
                             .scaleY(1.0f)
-                            .setDuration(90)
+                            .setDuration(100)
                             .start()
                     }
                     .start()
+
                 onVoteClick?.invoke(item)
             }
 

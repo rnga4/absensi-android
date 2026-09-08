@@ -377,6 +377,6 @@ class MainActivity : AppCompatActivity() {
                 row
             }
         }
-        filterList(etSearch.text.toString())
+        adapter.updateVoteState(empCode, loveCount, hasLoved)
     }
 }

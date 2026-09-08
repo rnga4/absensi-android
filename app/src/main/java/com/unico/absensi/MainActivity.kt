@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         val employees = rows.filterIsInstance<ListRow.Employee>().filter { it.loveCount > 0 }
         if (employees.isEmpty()) return rows.map { if (it is ListRow.Employee) it.copy(rank = 0) else it }
 
-        val topScores = employees.map { it.loveCount }.distinct().sortedDescending().take(3)
+        val topScores = employees.map { it.loveCount }.distinct().sortedDescending().take(1)
         val rankMap = HashMap<String, Int>()
 
         for (emp in employees) {

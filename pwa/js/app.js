@@ -114,7 +114,7 @@ function renderData(json) {
       }
     }
   }
-  const topScores = [...new Set(allEmps.map(e => e.love_count))].sort((a, b) => b - a).slice(0, 3);
+  const topScores = [...new Set(allEmps.map(e => e.love_count))].sort((a, b) => b - a).slice(0, 1);
   const rankMap = {};
   for (const emp of allEmps) {
     const idx = topScores.indexOf(emp.love_count);
@@ -181,17 +181,17 @@ function renderList(query) {
     } else {
       const initials = getInitials(row.name);
       const bg = getAvatarColor(row.name);
-      let rankIcon = "";
-      if (row.rank === 1) rankIcon = " 👑";
-      else if (row.rank === 2) rankIcon = " 🥈";
-      else if (row.rank === 3) rankIcon = " 🥉";
+      const crownHtml = row.rank === 1 ? '<span class="crown-badge">👑</span>' : '';
 
       html += `
         <div class="employee-card">
           <div class="emp-main">
-            <div class="emp-avatar" style="background: ${bg}">${escapeHtml(initials)}</div>
+            <div class="emp-avatar-wrapper">
+              ${crownHtml}
+              <div class="emp-avatar" style="background: ${bg}">${escapeHtml(initials)}</div>
+            </div>
             <div class="emp-info">
-              <span class="emp-name">${escapeHtml(row.name)}${rankIcon}</span>
+              <span class="emp-name">${escapeHtml(row.name)}</span>
               <span class="emp-dept">${escapeHtml(row.dept)}</span>
             </div>
           </div>

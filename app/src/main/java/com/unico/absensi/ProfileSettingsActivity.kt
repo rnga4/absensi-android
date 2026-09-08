@@ -170,6 +170,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
                 btnChangePhoto.text = "Ganti Foto"
                 tvPassMessage.visibility = View.VISIBLE
                 if (msg != null) {
+                    setResult(RESULT_OK)
                     tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.success))
                     tvPassMessage.text = msg
                     ivAvatar.setImageDrawable(bitmap.toCircularDrawable(ivAvatar.resources))

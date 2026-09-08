@@ -12,23 +12,42 @@ import com.google.android.material.button.MaterialButton
 
 class EmployeeActivity : AppCompatActivity() {
 
+    private lateinit var tvName: TextView
+    private lateinit var tvEmpCode: TextView
+    private lateinit var tvDept: TextView
+    private lateinit var flAvatar: FrameLayout
+    private lateinit var ivAvatar: ImageView
+    private lateinit var tvAvatarInitial: TextView
+    private lateinit var tvStatus: TextView
+    private lateinit var pbAttendance: android.widget.ProgressBar
+    private lateinit var tvIn: TextView
+    private lateinit var tvOut: TextView
+    private lateinit var tvLoveCount: TextView
+    private lateinit var btnHistory: MaterialButton
+    private lateinit var btnPublic: MaterialButton
+    private lateinit var cardAttendance: View
+
+    private var username = ""
+    private var pulseAnim: android.animation.ObjectAnimator? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_employee)
 
-        val tvName = findViewById<TextView>(R.id.tvName)
-        val tvEmpCode = findViewById<TextView>(R.id.tvEmpCode)
-        val tvDept = findViewById<TextView>(R.id.tvDept)
-        val flAvatar = findViewById<FrameLayout>(R.id.flAvatar)
-        val ivAvatar = findViewById<ImageView>(R.id.ivAvatar)
-        val tvAvatarInitial = findViewById<TextView>(R.id.tvAvatarInitial)
-        val tvStatus = findViewById<TextView>(R.id.tvStatus)
-        val pbAttendance = findViewById<android.widget.ProgressBar>(R.id.pbAttendance)
-        val cardAttendance = findViewById<View>(R.id.cardAttendance)
-        val tvIn = findViewById<TextView>(R.id.tvIn)
-        val tvOut = findViewById<TextView>(R.id.tvOut)
-        val btnHistory = findViewById<MaterialButton>(R.id.btnHistory)
-        val btnPublic = findViewById<MaterialButton>(R.id.btnPublic)
+        tvName = findViewById(R.id.tvName)
+        tvEmpCode = findViewById(R.id.tvEmpCode)
+        tvDept = findViewById(R.id.tvDept)
+        flAvatar = findViewById(R.id.flAvatar)
+        ivAvatar = findViewById(R.id.ivAvatar)
+        tvAvatarInitial = findViewById(R.id.tvAvatarInitial)
+        tvStatus = findViewById(R.id.tvStatus)
+        pbAttendance = findViewById(R.id.pbAttendance)
+        cardAttendance = findViewById(R.id.cardAttendance)
+        tvIn = findViewById(R.id.tvIn)
+        tvOut = findViewById(R.id.tvOut)
+        tvLoveCount = findViewById(R.id.tvLoveCount)
+        btnHistory = findViewById(R.id.btnHistory)
+        btnPublic = findViewById(R.id.btnPublic)
 
         btnPublic.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
 
@@ -41,7 +60,7 @@ class EmployeeActivity : AppCompatActivity() {
         }
 
         val prefsUser = Prefs.current()
-        val username = prefsUser?.username ?: ""
+        username = prefsUser?.username ?: ""
         tvName.text = prefsUser?.name ?: "-"
         val code = prefsUser?.empCode ?: ""
         tvEmpCode.text = "EMP CODE  $code"
@@ -55,16 +74,22 @@ class EmployeeActivity : AppCompatActivity() {
         btnPublic.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
+    }
 
-        // Loading animation on attendance status
-        val pulseAnim = android.animation.ObjectAnimator.ofFloat(tvStatus, "alpha", 0.35f, 1.0f).apply {
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
+
+    private fun loadData() {
+        pulseAnim?.cancel()
+        pbAttendance.visibility = View.VISIBLE
+        pulseAnim = android.animation.ObjectAnimator.ofFloat(tvStatus, "alpha", 0.35f, 1.0f).apply {
             duration = 750
             repeatCount = android.animation.ValueAnimator.INFINITE
             repeatMode = android.animation.ValueAnimator.REVERSE
             start()
         }
-
-        val tvLoveCount = findViewById<TextView>(R.id.tvLoveCount)
 
         Thread {
             val self = try {
@@ -87,21 +112,24 @@ class EmployeeActivity : AppCompatActivity() {
                 null
             }
             runOnUiThread {
-                pulseAnim.cancel()
+                pulseAnim?.cancel()
                 tvStatus.alpha = 1.0f
                 pbAttendance.visibility = View.GONE
 
                 if (profile != null) {
+                    tvName.text = profile.name
                     tvLoveCount.text = "❤️ ${profile.loveCount}"
                 }
 
                 if (bmp != null) {
-                    ivAvatar.alpha = 0f
                     ivAvatar.setImageDrawable(bmp.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
-                    ivAvatar.animate().alpha(1f).setDuration(250).start()
                     tvAvatarInitial.visibility = View.GONE
+                } else {
+                    ivAvatar.visibility = View.GONE
+                    tvAvatarInitial.visibility = View.VISIBLE
                 }
+
                 if (self == null) {
                     tvStatus.text = "[ GAGAL MEMUAT STATUS ]"
                     tvStatus.setTextColor(ContextCompat.getColor(this, R.color.danger))

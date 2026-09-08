@@ -168,11 +168,13 @@ Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/use
 | `api_vote.php` | POST | Vote ❤️ karyawan (`action=vote`, `emp_code`) |
 
 ### Alur
-- **Halaman profil user normal** (`EmployeeActivity`): avatar bulat menampilkan foto asli; **ketuk avatar** → buka `ProfileSettingsActivity`.
-- **`ProfileSettingsActivity`**: tombol **Ganti Foto** (pilih dari galeri → dimampatkan ke ≤2400px → upload multipart → tampil langsung), form **ganti password** (lama / baru / konfirmasi + pesan error), tombol kembali.
+- **Halaman profil user normal** (`EmployeeActivity`): avatar bulat menampilkan foto asli & jumlah akumulasi love vote (`❤️ X`); **ketuk avatar** → buka `ProfileSettingsActivity`. Penguatan siklus hidup `onResume()` memastikan foto profil yang baru diganti di `ProfileSettingsActivity` langsung di-fetch dan ter-update secara *real-time* tanpa perlu menutup aplikasi.
+- **`ProfileSettingsActivity`**: tombol **Ganti Foto** (pilih dari galeri → dimampatkan ke ≤2400px → upload multipart → `setResult(RESULT_OK)` + tampil langsung di layar), form **ganti password** (lama / baru / konfirmasi + pesan error), tombol kembali.
 - **Index Publik** (`MainActivity`/`AbsensiAdapter`) & **Dashboard Admin** (`AdminAdapter`): avatar menampilkan **foto karyawan bulat** (di-cache per emp_code, dimuat async, `itemView.post` saat selesai — jangan panggil `notifyItemChanged` dari thread background). Fallback inisial lingkaran berwarna.
+- **Tampilan Vote Love**: Format minimalis emote + angka (`❤️ X`) di-render di index publik, modal dialog profil web `public.php`, halaman profil web `employee.php`, dan halaman profil Android `EmployeeActivity`.
 
 ### Konvensi
 - Foto profil dibuat bulat dengan **`RoundedBitmapDrawableFactory.create()` + `isCircular = true`** (helper `com.unico.absensi.CircularPhoto.kt` → `Bitmap.toCircularDrawable(resources)`), lalu `ivAvatar.setImageDrawable(...)`. Helper ini dipakai bersama di halaman profil user, Index Publik, dashboard admin, dan pengaturan profil. **JANGAN bergantung pada `android:clipToOutline`** untuk memotong foto — tidak konsisten di Android 11 (API ≤30) sehingga foto tampil kotak; `setCircular` bekerja bulat di semua versi.
+- Pemuatan profil dan foto pada `EmployeeActivity` ditempatkan di dalam handler **`onResume()`** agar setiap kali kembali dari layar pengaturan foto (`ProfileSettingsActivity`), avatar dan data pengguna langsung ter-refresh otomatis.
 - TextView inisial sudah bulat via `shape="oval"` (tidak butuh clip). Background oval di XML boleh dibiarkan sebagai fallback.
 - Untuk foto di adapter: selalu `photoCache[synchronizedMap]` + `Thread` + `itemView.post {}` (hindari `CalledFromWrongThreadException`).

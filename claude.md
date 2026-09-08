@@ -145,8 +145,8 @@ Expected Response JSON:
 
 Aplikasi Android terintegrasi dengan backend `api_vote.php` untuk fitur apresiasi harian:
 - **Endpoint**: `POST /api_vote.php` (`action=vote`, `emp_code=<code>`).
-- **Autentikasi Sesi**: Memerlukan sesi login (`PHPSESSID`). Jika user mengeklik tombol vote saat status *guest* (belum login), app akan memberikan notifikasi dan membuka `LoginActivity`.
-- **State Toggle**: Memberi/menarik vote ❤️ secara realtime. Respon server `{ success, state ('added'|'removed'), my_vote, love_count }` akan langsung memperbarui UI pill button tanpa reload ulang seluruh daftar.
+- **Autentikasi Sesi & Cookie Persistence**: Memerlukan sesi login (`PHPSESSID`). `MainActivity` dan `ApiClient` dikonfigurasi dengan `PersistentCookieStorage` (`OkHttpClient.cookieJar`) agar sesi login tetap bertahan saat *swipe-refresh* (`fetchData()`), mencegah status vote pengguna mereset kembali ke default (abu `🤍`). Jika user mengeklik tombol vote saat status *guest* (belum login), app akan memberikan notifikasi dan membuka `LoginActivity`.
+- **State Toggle & Inline Count**: Memberi/menarik vote ❤️ secara realtime. Di-render secara inline (`tvVoteIcon` `❤️`/`🤍` + `tvVoteCount` angka vote bold) dengan feedback sentuh borderless (`?attr/selectableItemBackgroundBorderless`). Respon server `{ success, state ('added'|'removed'), my_vote, love_count }` langsung memperbarui UI tanpa reload ulang seluruh daftar.
 
 ---
 

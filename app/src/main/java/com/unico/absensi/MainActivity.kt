@@ -35,10 +35,7 @@ class MainActivity : AppCompatActivity() {
         "http://100.102.13.11:9790/api_public.php"
     )
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(4, TimeUnit.SECONDS)
-        .readTimeout(4, TimeUnit.SECONDS)
-        .build()
+    private lateinit var client: OkHttpClient
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var recyclerView: RecyclerView
@@ -79,6 +76,12 @@ class MainActivity : AppCompatActivity() {
 
         Prefs.init(this)
         AbsensiApi.init(ApiClient(this))
+
+        client = OkHttpClient.Builder()
+            .cookieJar(PersistentCookieStorage(this))
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(4, TimeUnit.SECONDS)
+            .build()
 
         adapter = AbsensiAdapter(emptyList()) { employee ->
             handleVote(employee)

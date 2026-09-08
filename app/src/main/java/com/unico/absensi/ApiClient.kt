@@ -169,7 +169,7 @@ class ApiClient(context: Context) {
         Exception("HTTP $code")
 }
 
-private class PersistentCookieStorage(private val context: Context) : CookieJar {
+class PersistentCookieStorage(private val context: Context) : CookieJar {
 
     private val prefs =
         context.getSharedPreferences("absensi_cookies", Context.MODE_PRIVATE)

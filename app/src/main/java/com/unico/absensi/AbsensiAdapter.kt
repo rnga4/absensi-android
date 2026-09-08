@@ -119,12 +119,15 @@ class AbsensiAdapter(
 
         fun bindVoteStateOnly(item: ListRow.Employee) {
             currentItem = item
+            tvVoteCount.text = item.loveCount.toString()
             if (item.hasLoved) {
                 tvVoteIcon.text = "❤️"
                 tvVoteIcon.alpha = 1.0f
+                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.badge_danger_text))
             } else {
                 tvVoteIcon.text = "🤍"
-                tvVoteIcon.alpha = 0.6f
+                tvVoteIcon.alpha = 0.65f
+                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
             }
         }
 

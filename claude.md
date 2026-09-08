@@ -112,9 +112,12 @@ absensi-android/
 
 ## 🌐 API & Network Infrastructure
 
-The app queries API endpoints with automatic failover fallback:
+The app queries API endpoints with automatic failover fallback and dynamic working IP prioritization:
 1. Primary: `http://192.168.1.37:9790/api_public.php`
 2. Secondary: `http://100.102.13.11:9790/api_public.php`
+
+- **Dynamic IP Prioritization**: Konek terakhir yang sukses disimpan di `Prefs.saveLastBaseUrl(...)`. Saat app dibuka, URL yang sukses tersebut dicoba **pertama kali** (menghindari timeout TCP SYN 4 detik di Android 15 ketika berada di luar Wi-Fi lokal).
+- **Instant Cache Rendering**: Data JSON publik disimpan di `Prefs.saveCachedPublicJson(...)`. Begitu aplikasi dibuka, UI langsung di-render secara **instan (0 ms)** dari cache lokal sambil melakukan background syncing.
 
 Expected Response JSON:
 ```json

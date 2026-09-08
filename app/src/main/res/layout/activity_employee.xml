@@ -133,6 +133,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/cardAttendance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -140,14 +141,30 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="MEMUAT..."
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MEMUAT STATUS KEHADIRAN..."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.04"
+                        android:textStyle="bold" />
+
+                    <ProgressBar
+                        android:id="@+id/pbAttendance"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:indeterminate="true"
+                        android:indeterminateTint="@color/text_primary" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -167,6 +184,7 @@
                             android:text="IN"
                             android:textColor="@color/text_secondary"
                             android:textSize="10sp"
+                            android:letterSpacing="0.08"
                             android:textStyle="bold" />
 
                         <TextView
@@ -174,7 +192,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textColor="@color/text_primary"
+                            android:text="--:--"
+                            android:textColor="@color/text_secondary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -191,6 +210,7 @@
                             android:text="OUT"
                             android:textColor="@color/text_secondary"
                             android:textSize="10sp"
+                            android:letterSpacing="0.08"
                             android:textStyle="bold" />
 
                         <TextView
@@ -198,7 +218,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textColor="@color/text_primary"
+                            android:text="--:--"
+                            android:textColor="@color/text_secondary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>

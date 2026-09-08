@@ -23,6 +23,8 @@ class EmployeeActivity : AppCompatActivity() {
         val ivAvatar = findViewById<ImageView>(R.id.ivAvatar)
         val tvAvatarInitial = findViewById<TextView>(R.id.tvAvatarInitial)
         val tvStatus = findViewById<TextView>(R.id.tvStatus)
+        val pbAttendance = findViewById<android.widget.ProgressBar>(R.id.pbAttendance)
+        val cardAttendance = findViewById<View>(R.id.cardAttendance)
         val tvIn = findViewById<TextView>(R.id.tvIn)
         val tvOut = findViewById<TextView>(R.id.tvOut)
         val btnHistory = findViewById<MaterialButton>(R.id.btnHistory)
@@ -54,6 +56,14 @@ class EmployeeActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
+        // Loading animation on attendance status
+        val pulseAnim = android.animation.ObjectAnimator.ofFloat(tvStatus, "alpha", 0.35f, 1.0f).apply {
+            duration = 750
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            repeatMode = android.animation.ValueAnimator.REVERSE
+            start()
+        }
+
         Thread {
             val self = try {
                 AbsensiApi.employeeSelf()
@@ -70,13 +80,20 @@ class EmployeeActivity : AppCompatActivity() {
                 null
             }
             runOnUiThread {
+                pulseAnim.cancel()
+                tvStatus.alpha = 1.0f
+                pbAttendance.visibility = View.GONE
+
                 if (bmp != null) {
+                    ivAvatar.alpha = 0f
                     ivAvatar.setImageDrawable(bmp.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
+                    ivAvatar.animate().alpha(1f).setDuration(250).start()
                     tvAvatarInitial.visibility = View.GONE
                 }
                 if (self == null) {
-                    tvStatus.text = "Gagal memuat status"
+                    tvStatus.text = "[ GAGAL MEMUAT STATUS ]"
+                    tvStatus.setTextColor(ContextCompat.getColor(this, R.color.danger))
                     return@runOnUiThread
                 }
                 tvDept.text = self.dept
@@ -96,6 +113,11 @@ class EmployeeActivity : AppCompatActivity() {
                 tvStatus.setTextColor(ContextCompat.getColor(this, statusColor))
                 tvIn.text = t.inTime
                 tvOut.text = t.outTime
+                tvIn.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+                tvOut.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+
+                cardAttendance.alpha = 0.5f
+                cardAttendance.animate().alpha(1.0f).setDuration(250).start()
             }
         }.start()
     }

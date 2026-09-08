@@ -117,13 +117,12 @@ class AbsensiAdapter(
         private val tvVoteCount: TextView = view.findViewById(R.id.tvVoteCount)
 
         fun bindVoteStateOnly(item: ListRow.Employee) {
-            tvVoteCount.text = item.loveCount.toString()
             if (item.hasLoved) {
-                btnVote.setBackgroundResource(R.drawable.bg_vote_active)
-                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.badge_danger_text))
+                tvVoteIcon.text = "❤️"
+                tvVoteIcon.alpha = 1.0f
             } else {
-                btnVote.setBackgroundResource(R.drawable.bg_vote_inactive)
-                tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
+                tvVoteIcon.text = "🤍"
+                tvVoteIcon.alpha = 0.6f
             }
         }
 
@@ -136,12 +135,8 @@ class AbsensiAdapter(
 
             btnVote.setOnClickListener {
                 tvVoteIcon.animate().cancel()
-                btnVote.animate().cancel()
-
                 tvVoteIcon.scaleX = 1.0f
                 tvVoteIcon.scaleY = 1.0f
-                btnVote.scaleX = 1.0f
-                btnVote.scaleY = 1.0f
 
                 tvVoteIcon.animate()
                     .scaleX(1.5f)
@@ -153,19 +148,6 @@ class AbsensiAdapter(
                             .scaleX(1.0f)
                             .scaleY(1.0f)
                             .setDuration(120)
-                            .start()
-                    }
-                    .start()
-
-                btnVote.animate()
-                    .scaleX(1.12f)
-                    .scaleY(1.12f)
-                    .setDuration(100)
-                    .withEndAction {
-                        btnVote.animate()
-                            .scaleX(1.0f)
-                            .scaleY(1.0f)
-                            .setDuration(100)
                             .start()
                     }
                     .start()

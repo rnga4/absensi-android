@@ -20,6 +20,7 @@
         <activity android:name=".AdminActivity" />
         <activity android:name=".EmployeeActivity" />
         <activity android:name=".HistoryActivity" />
+        <activity android:name=".ProfileSettingsActivity" />
         <activity android:name=".MainActivity" />
     </application>
 </manifest>

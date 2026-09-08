@@ -52,6 +52,16 @@ data class EmployeeSelf(
     val today: EmpToday
 )
 
+data class UserProfile(
+    val name: String,
+    val username: String,
+    val empCode: String,
+    val dept: String,
+    val role: String,
+    val hasPhoto: Boolean,
+    val photoUrl: String?
+)
+
 data class HistoryDay(
     val date: String,
     val dateFormatted: String,

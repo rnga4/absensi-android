@@ -8,6 +8,7 @@ object ApiConfig {
     )
 
     const val LOGIN = "/api_login.php"
+    const val PROFILE = "/profile.php?format=json"
     const val DASHBOARD = "/api_dashboard.php"
     const val HISTORY = "/api_history.php"
     const val PUBLIC = "/api_public.php"

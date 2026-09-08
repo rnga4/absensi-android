@@ -1,5 +1,7 @@
 package com.unico.absensi
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import org.json.JSONObject
 
 object AbsensiApi {
@@ -100,6 +102,47 @@ object AbsensiApi {
             dept = empObj?.optString("dept", "-") ?: "-",
             today = today
         )
+    }
+
+    fun getProfile(): UserProfile {
+        val json = JSONObject(api().getProfile())
+        return UserProfile(
+            name = json.optString("name", "-"),
+            username = json.optString("username", "-"),
+            empCode = json.optString("emp_code", "-"),
+            dept = json.optString("dept", "-"),
+            role = json.optString("role", "employee"),
+            hasPhoto = json.optBoolean("has_photo", false),
+            photoUrl = if (json.has("photo_url") && !json.isNull("photo_url")) json.optString("photo_url") else null
+        )
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String): String {
+        val json = JSONObject(api().changePassword(currentPassword, newPassword))
+        return json.optString("message", "Password berhasil diganti.")
+    }
+
+    fun uploadPhoto(bitmap: android.graphics.Bitmap): String {
+        val json = JSONObject(api().uploadPhoto(bitmap))
+        return json.optString("message", "Foto profil berhasil diperbarui.")
+    }
+
+    fun getPhoto(username: String): Bitmap? {
+        return try {
+            val bytes = api().getPhotoBytes(username)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun getPublicPhotoByEmp(empCode: String): Bitmap? {
+        return try {
+            val bytes = api().getPublicPhotoByEmp(empCode)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun history(empCode: String, offset: Int = 0): List<HistoryDay> {

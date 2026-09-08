@@ -1,13 +1,17 @@
 package com.unico.absensi
 
 import android.content.Context
+import android.graphics.Bitmap
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -42,6 +46,85 @@ class ApiClient(context: Context) {
 
     /** GET public endpoint (no login required). */
     fun getPublic(): String = get(ApiConfig.PUBLIC)
+
+    /** GET profile (JSON via profile.php?format=json). */
+    fun getProfile(): String {
+        return requestWithFailover(ApiConfig.url(ApiConfig.PROFILE)) { url ->
+            client.newCall(Request.Builder().url(url).get().build()).execute()
+        }
+    }
+
+    /** GET profile photo bytes via photo.php?u=<username>. Returns ByteArray or throws. */
+    fun getPhotoBytes(username: String): ByteArray {
+        val path = "/photo.php?u=" + encode(username)
+        var lastError: Exception? = null
+        for (url in ApiConfig.url(path)) {
+            try {
+                val resp = client.newCall(Request.Builder().url(url).get().build()).execute()
+                resp.use {
+                    val bytes = it.body?.bytes()
+                    if (bytes != null && it.isSuccessful) return bytes
+                    if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
+                }
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+        throw lastError ?: IOException("Semua server tidak dapat dijangkau")
+    }
+
+    /** GET public profile photo by emp_code (photo.php?emp=<code>&pub=1). Returns ByteArray or throws. */
+    fun getPublicPhotoByEmp(empCode: String): ByteArray {
+        val path = "/photo.php?emp=" + encode(empCode) + "&pub=1"
+        var lastError: Exception? = null
+        for (url in ApiConfig.url(path)) {
+            try {
+                val resp = client.newCall(Request.Builder().url(url).get().build()).execute()
+                resp.use {
+                    val bytes = it.body?.bytes()
+                    if (bytes != null && it.isSuccessful) return bytes
+                    if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
+                }
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+        throw lastError ?: IOException("Semua server tidak dapat dijangkau")
+    }
+
+    /** POST change password. Returns JSON body. */
+    fun changePassword(currentPassword: String, newPassword: String): String {
+        val body = ("action=password" +
+            "&current_password=${encode(currentPassword)}" +
+            "&new_password=${encode(newPassword)}" +
+            "&confirm_password=${encode(newPassword)}")
+            .toRequestBody(formType)
+        return requestWithFailover(ApiConfig.url(ApiConfig.PROFILE)) { url ->
+            client.newCall(Request.Builder().url(url).post(body).build()).execute()
+        }
+    }
+
+    /** POST upload profile photo (multipart). Returns JSON body. */
+    fun uploadPhoto(bitmap: Bitmap): String {
+        val bos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 88, bos)
+        val bytes = bos.toByteArray()
+        val imgType = "image/jpeg".toMediaType()
+        val filePart = MultipartBody.Part.createFormData(
+            "photo", "photo.jpg", bytes.toRequestBody(imgType)
+        )
+        val actionPart = MultipartBody.Part.createFormData(
+            "action", "photo"
+        )
+        val body = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addPart(actionPart)
+            .addPart(filePart)
+            .build()
+        return requestWithFailover(ApiConfig.url(ApiConfig.PROFILE)) { url ->
+            client.newCall(Request.Builder().url(url).post(body).build()).execute()
+        }
+    }
 
     private fun requestWithFailover(
         urls: List<String>,

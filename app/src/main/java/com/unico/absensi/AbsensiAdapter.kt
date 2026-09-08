@@ -1,9 +1,11 @@
 package com.unico.absensi
 
+import android.graphics.Bitmap
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -36,9 +38,15 @@ class AbsensiAdapter(private var items: List<ListRow>) :
         }
     }
 
+    private val photoCache = java.util.Collections.synchronizedMap(HashMap<String, Bitmap>())
+
     fun updateItems(newItems: List<ListRow>) {
         items = newItems
         notifyDataSetChanged()
+    }
+
+    fun addPhoto(empCode: String, bitmap: Bitmap) {
+        photoCache[empCode] = bitmap
     }
 
     override fun getItemViewType(position: Int): Int =
@@ -72,7 +80,8 @@ class AbsensiAdapter(private var items: List<ListRow>) :
         }
     }
 
-    class EmployeeVH(view: View) : RecyclerView.ViewHolder(view) {
+    inner class EmployeeVH(view: View) : RecyclerView.ViewHolder(view) {
+        private val ivAvatar: ImageView = view.findViewById(R.id.ivAvatar)
         private val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         private val tvName: TextView = view.findViewById(R.id.tvEmpName)
         private val tvDept: TextView = view.findViewById(R.id.tvEmpDept)
@@ -86,16 +95,46 @@ class AbsensiAdapter(private var items: List<ListRow>) :
             val color = ContextCompat.getColor(itemView.context, colorRes)
             val borderColor = ContextCompat.getColor(itemView.context, R.color.border_dark)
 
-            val cornerPx = (8 * itemView.resources.displayMetrics.density).toInt()
             val strokePx = (1.5 * itemView.resources.displayMetrics.density).toInt()
 
             val drawable = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = cornerPx.toFloat()
+                shape = GradientDrawable.OVAL
                 setColor(color)
                 setStroke(strokePx, borderColor)
             }
             tvAvatar.background = drawable
+
+            val cached = photoCache[item.empCode]
+            if (cached != null) {
+                ivAvatar.setImageBitmap(cached)
+                ivAvatar.visibility = View.VISIBLE
+                tvAvatar.visibility = View.GONE
+            } else {
+                ivAvatar.visibility = View.GONE
+                tvAvatar.visibility = View.VISIBLE
+                loadPhoto(item)
+            }
+        }
+
+        private fun loadPhoto(item: ListRow.Employee) {
+            Thread {
+                val bmp = try {
+                    AbsensiApi.getPublicPhotoByEmp(item.empCode)
+                } catch (e: Exception) {
+                    null
+                }
+                if (bmp != null) {
+                    photoCache[item.empCode] = bmp
+                    itemView.post {
+                        val pos = bindingAdapterPosition
+                        val cur = if (pos != RecyclerView.NO_POSITION) items.getOrNull(pos) else null
+                        val same = cur is ListRow.Employee && cur.empCode == item.empCode
+                        if (same) {
+                            notifyItemChanged(pos)
+                        }
+                    }
+                }
+            }.start()
         }
     }
 }

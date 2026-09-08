@@ -64,27 +64,44 @@ absensi-android/
 ├── CLAUDE.md                    # Context & developer guidelines
 ├── app/
 │   ├── build.gradle.kts         # App dependencies (OkHttp, WorkManager, Material)
-│   └── src/main/
-│       ├── AndroidManifest.xml  # Manifest with permissions & WorkManager setup
-│       ├── java/com/unico/absensi/
-│       │   ├── MainActivity.kt        # Main view logic, search filtering, refresh animation
-│       │   ├── AbsensiAdapter.kt      # RecyclerView adapter (Swiss headers & square avatars)
-│       │   ├── Models.kt              # ListRow sealed class (DeptHeader & Employee)
-│       │   ├── AbsensiWorker.kt       # Periodic WorkManager worker (30 min interval)
-│       │   └── NotificationHelper.kt  # Notification channel & manager builder
-│       └── res/
-│           ├── drawable/
-│           │   ├── bg_avatar_box.xml   # Rounded-square avatar shape (8dp radius)
-│           │   ├── bg_hero_card.xml    # Minimalist SaaS hero card container
-│           │   ├── bg_search.xml       # Crisp search input field shape
-│           │   ├── bg_tag_pill.xml     # Technical pill tag background
-│           │   └── bg_badge.xml        # Technical status badge shape
-│           ├── layout/
-│           │   ├── activity_main.xml          # Komi Store header & search layout
-│           │   ├── item_employee.xml          # Employee card item view
-│           │   └── item_department_header.xml # Swiss section header text view
-│           └── values/
-│               └── colors.xml                 # Design tokens (Monochrome & Badges)
+│       └── src/main/
+│           ├── AndroidManifest.xml  # Manifest with permissions & WorkManager setup
+│           ├── java/com/unico/absensi/
+│           │   ├── MainActivity.kt        # Index publik: daftar belum absen, search, refresh animation
+│           │   ├── AbsensiAdapter.kt      # Adapter index publik (Swiss headers, avatar foto bulat)
+│           │   ├── Models.kt              # ListRow sealed class (DeptHeader & Employee) + UserProfile
+│           │   ├── AbsensiWorker.kt       # Periodic WorkManager worker (30 min interval)
+│           │   ├── NotificationHelper.kt  # Notification channel & manager builder
+│           │   ├── LoginActivity.kt       # Login (api_login.php), route ke Admin/Employee
+│           │   ├── AdminActivity.kt       # Dashboard admin (stat cards, filter, search)
+│           │   ├── AdminAdapter.kt        # Adapter admin (avatar foto karyawan bulat + cache)
+│           │   ├── EmployeeActivity.kt    # Halaman profil user normal (avatar tap → pengaturan)
+│           │   ├── HistoryActivity.kt     # Riwayat kehadiran (pagination)
+│           │   ├── HistoryAdapter.kt      # Adapter riwayat
+│           │   ├── ProfileSettingsActivity.kt # Pengaturan profil (ganti foto & password)
+│           │   ├── ApiClient.kt           # OkHttp client, cookie PHPSESSID persist, mulipart upload
+│           │   ├── ApiConfig.kt           # Base URLs failover + endpoint paths
+│           │   ├── AbsensiApi.kt          # Wrapper API (login/dashboard/history/profile/photo)
+│           │   ├── LogoutHelper.kt        # Konfirmasi logout
+│           │   └── Prefs.kt               # Sesi login (SharedPreferences)
+│           └── res/
+│               ├── drawable/
+│               │   ├── bg_avatar_circle.xml # Avatar bulat (oval + stroke) — dipakai semua avatar
+│               │   ├── bg_avatar_box.xml    # (legacy rounded square)
+│               │   ├── bg_hero_card.xml    # Minimalist SaaS hero card container
+│               │   ├── bg_search.xml       # Crisp search input field shape
+│               │   ├── bg_tag_pill.xml     # Technical pill tag background
+│               │   └── bg_badge.xml        # Technical status badge shape
+│               ├── layout/
+│               │   ├── activity_main.xml          # Komi Store header & search layout
+│               │   ├── activity_employee.xml      # Profil user: avatar bulat, status, tombol
+│               │   ├── activity_profile_settings.xml # Ganti foto + ganti password
+│               │   ├── item_employee.xml          # Item index publik (avatar foto bulat)
+│               │   ├── item_admin_employee.xml    # Item admin (avatar foto bulat)
+│               │   ├── item_history.xml / item_department_header.xml / item_stat.xml
+│               │   └── activity_history.xml / activity_login.xml / activity_admin.xml
+│               └── values/
+│                   └── colors.xml                 # Design tokens (Monochrome & Badges)
 ```
 
 ---
@@ -112,3 +129,27 @@ Expected Response JSON:
   ]
 }
 ```
+
+---
+
+## 👤 Profil & Pengaturan (Profile/Settings)
+
+Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/users.sqlite` + file `data/photos/`), sehingga **web & Android otomatis sinkron** — ganti di web ⇒ tampil di HP & sebaliknya.
+
+### Endpoint (semua pakai sesi login / cookie PHPSESSID)
+| Endpoint | Method | Fungsi |
+|---|---|---|
+| `profile.php?format=json` | GET | Ambil profil: `{ name, username, emp_code, dept, role, has_photo, photo_url }` |
+| `profile.php?format=json` | POST `action=password` | Ganti password (`current_password`, `new_password`, `confirm_password`), min 6 char |
+| `profile.php?format=json` | POST multipart `action=photo` + file `photo` | Upload foto profil (max 2MB, jpg/png/webp) |
+| `photo.php?u=<username>` | GET | Ambil foto (perlu sesi; employee hanya fotonya sendiri) |
+| `photo.php?emp=<emp_code>&pub=1` | GET | Ambil foto publik by emp_code (dipakai index publik & admin) |
+
+### Alur
+- **Halaman profil user normal** (`EmployeeActivity`): avatar bulat menampilkan foto asli; **ketuk avatar** → buka `ProfileSettingsActivity`.
+- **`ProfileSettingsActivity`**: tombol **Ganti Foto** (pilih dari galeri → dimampatkan ke ≤2400px → upload multipart → tampil langsung), form **ganti password** (lama / baru / konfirmasi + pesan error), tombol kembali.
+- **Index Publik** (`MainActivity`/`AbsensiAdapter`) & **Dashboard Admin** (`AdminAdapter`): avatar menampilkan **foto karyawan bulat** (di-cache per emp_code, dimuat async, `itemView.post` saat selesai — jangan panggil `notifyItemChanged` dari thread background). Fallback inisial lingkaran berwarna.
+
+### Konvensi
+- Semua avatar = **circle** (`drawable/bg_avatar_circle.xml`), diterapkan `background` oval + `clipToOutline="true"` **langsung pada `ImageView`/`TextView`** (bukan parent FrameLayout) — ini yang terbukti menghasilkan lingkaran yang pas.
+- Untuk foto di adapter: selalu `photoCache[synchronizedMap]` + `Thread` + `itemView.post {}` (hindari `CalledFromWrongThreadException`).

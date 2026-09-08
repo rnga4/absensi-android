@@ -2,6 +2,9 @@ package com.unico.absensi
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -16,7 +19,9 @@ class EmployeeActivity : AppCompatActivity() {
         val tvName = findViewById<TextView>(R.id.tvName)
         val tvEmpCode = findViewById<TextView>(R.id.tvEmpCode)
         val tvDept = findViewById<TextView>(R.id.tvDept)
-        val tvAvatar = findViewById<TextView>(R.id.tvAvatar)
+        val flAvatar = findViewById<FrameLayout>(R.id.flAvatar)
+        val ivAvatar = findViewById<ImageView>(R.id.ivAvatar)
+        val tvAvatarInitial = findViewById<TextView>(R.id.tvAvatarInitial)
         val tvStatus = findViewById<TextView>(R.id.tvStatus)
         val tvIn = findViewById<TextView>(R.id.tvIn)
         val tvOut = findViewById<TextView>(R.id.tvOut)
@@ -29,11 +34,16 @@ class EmployeeActivity : AppCompatActivity() {
             LogoutHelper.confirmAndLogout(this)
         }
 
+        flAvatar.setOnClickListener {
+            startActivity(Intent(this, ProfileSettingsActivity::class.java))
+        }
+
         val prefsUser = Prefs.current()
+        val username = prefsUser?.username ?: ""
         tvName.text = prefsUser?.name ?: "-"
         val code = prefsUser?.empCode ?: ""
         tvEmpCode.text = "EMP CODE  $code"
-        tvAvatar.text = AdminAdapter.getInitials(prefsUser?.name ?: "?")
+        tvAvatarInitial.text = AdminAdapter.getInitials(prefsUser?.name ?: "?")
 
         btnHistory.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java)
@@ -50,7 +60,21 @@ class EmployeeActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
+            val bmp = if (username.isNotEmpty()) {
+                try {
+                    AbsensiApi.getPhoto(username)
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
             runOnUiThread {
+                if (bmp != null) {
+                    ivAvatar.setImageBitmap(bmp)
+                    ivAvatar.visibility = View.VISIBLE
+                    tvAvatarInitial.visibility = View.GONE
+                }
                 if (self == null) {
                     tvStatus.text = "Gagal memuat status"
                     return@runOnUiThread

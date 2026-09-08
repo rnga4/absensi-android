@@ -1,9 +1,11 @@
 package com.unico.absensi
 
+import android.graphics.Bitmap
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +34,8 @@ class AdminAdapter(
             }
         }
     }
+
+    private val photoCache = java.util.Collections.synchronizedMap(HashMap<String, Bitmap>())
 
     fun updateItems(newItems: List<AdminRow>) {
         items = newItems
@@ -65,7 +69,8 @@ class AdminAdapter(
         }
     }
 
-    class EmpVH(view: View) : RecyclerView.ViewHolder(view) {
+    inner class EmpVH(view: View) : RecyclerView.ViewHolder(view) {
+        private val ivAvatar: ImageView = view.findViewById(R.id.ivAvatar)
         private val tvAvatar: TextView = view.findViewById(R.id.tvAvatar)
         private val tvName: TextView = view.findViewById(R.id.tvName)
         private val tvIn: TextView = view.findViewById(R.id.tvIn)
@@ -82,15 +87,24 @@ class AdminAdapter(
             val colorRes = avatarColors[abs(emp.name.hashCode()) % avatarColors.size]
             val color = ContextCompat.getColor(itemView.context, colorRes)
             val border = ContextCompat.getColor(itemView.context, R.color.border_dark)
-            val cornerPx = (8 * itemView.resources.displayMetrics.density).toInt()
             val strokePx = (1.5 * itemView.resources.displayMetrics.density).toInt()
             val drawable = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = cornerPx.toFloat()
+                shape = GradientDrawable.OVAL
                 setColor(color)
                 setStroke(strokePx, border)
             }
             tvAvatar.background = drawable
+
+            val cached = photoCache[emp.code]
+            if (cached != null) {
+                ivAvatar.setImageBitmap(cached)
+                ivAvatar.visibility = View.VISIBLE
+                tvAvatar.visibility = View.GONE
+            } else {
+                ivAvatar.visibility = View.GONE
+                tvAvatar.visibility = View.VISIBLE
+                loadPhoto(emp.code, emp.name)
+            }
 
             val (badgeText, bg, fg) = when (emp.status) {
                 "hadir" -> Triple("HADIR", R.drawable.bg_badge_success, R.color.badge_success_text)
@@ -102,6 +116,27 @@ class AdminAdapter(
             tvBadge.setTextColor(ContextCompat.getColor(itemView.context, fg))
 
             itemView.setOnClickListener { onClick(emp) }
+        }
+
+        private fun loadPhoto(empCode: String, empName: String) {
+            Thread {
+                val bmp = try {
+                    AbsensiApi.getPublicPhotoByEmp(empCode)
+                } catch (e: Exception) {
+                    null
+                }
+                if (bmp != null) {
+                    photoCache[empCode] = bmp
+                    itemView.post {
+                        val pos = bindingAdapterPosition
+                        val cur = if (pos != RecyclerView.NO_POSITION) items.getOrNull(pos) else null
+                        val same = cur is AdminRow.Emp && cur.employee.code == empCode
+                        if (same) {
+                            notifyItemChanged(pos)
+                        }
+                    }
+                }
+            }.start()
         }
     }
 }

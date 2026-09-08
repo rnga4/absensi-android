@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     app:cardBackgroundColor="@color/surface"
     app:cardCornerRadius="10dp"
     app:cardElevation="0dp"
@@ -14,6 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="14dp"
@@ -77,13 +81,14 @@
 
         <FrameLayout
             android:id="@+id/btnVote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
-            android:padding="6dp">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:focusable="true">
 
             <TextView
                 android:id="@+id/tvVoteIcon"

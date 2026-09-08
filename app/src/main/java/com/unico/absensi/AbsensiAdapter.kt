@@ -115,8 +115,10 @@ class AbsensiAdapter(
         private val btnVote: View = view.findViewById(R.id.btnVote)
         private val tvVoteIcon: TextView = view.findViewById(R.id.tvVoteIcon)
         private val tvVoteCount: TextView = view.findViewById(R.id.tvVoteCount)
+        private var currentItem: ListRow.Employee? = null
 
         fun bindVoteStateOnly(item: ListRow.Employee) {
+            currentItem = item
             if (item.hasLoved) {
                 tvVoteIcon.text = "❤️"
                 tvVoteIcon.alpha = 1.0f
@@ -127,6 +129,7 @@ class AbsensiAdapter(
         }
 
         fun bind(item: ListRow.Employee) {
+            currentItem = item
             tvName.text = item.name
             tvDept.text = item.dept
             tvAvatar.text = getInitials(item.name)
@@ -134,25 +137,27 @@ class AbsensiAdapter(
             bindVoteStateOnly(item)
 
             btnVote.setOnClickListener {
+                val latest = currentItem ?: return@setOnClickListener
+
                 tvVoteIcon.animate().cancel()
                 tvVoteIcon.scaleX = 1.0f
                 tvVoteIcon.scaleY = 1.0f
 
                 tvVoteIcon.animate()
-                    .scaleX(1.5f)
-                    .scaleY(1.5f)
-                    .setDuration(130)
-                    .setInterpolator(android.view.animation.OvershootInterpolator(3.0f))
+                    .scaleX(1.35f)
+                    .scaleY(1.35f)
+                    .setDuration(120)
+                    .setInterpolator(android.view.animation.OvershootInterpolator(2.5f))
                     .withEndAction {
                         tvVoteIcon.animate()
                             .scaleX(1.0f)
                             .scaleY(1.0f)
-                            .setDuration(120)
+                            .setDuration(100)
                             .start()
                     }
                     .start()
 
-                onVoteClick?.invoke(item)
+                onVoteClick?.invoke(latest)
             }
 
             val colorRes = avatarColors[abs(item.name.hashCode()) % avatarColors.size]

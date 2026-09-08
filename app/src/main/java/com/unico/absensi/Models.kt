@@ -73,7 +73,8 @@ data class UserProfile(
     val dept: String,
     val role: String,
     val hasPhoto: Boolean,
-    val photoUrl: String?
+    val photoUrl: String?,
+    val loveCount: Int = 0
 )
 
 data class HistoryDay(

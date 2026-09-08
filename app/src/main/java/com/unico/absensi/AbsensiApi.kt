@@ -125,7 +125,8 @@ object AbsensiApi {
             dept = json.optString("dept", "-"),
             role = json.optString("role", "employee"),
             hasPhoto = json.optBoolean("has_photo", false),
-            photoUrl = if (json.has("photo_url") && !json.isNull("photo_url")) json.optString("photo_url") else null
+            photoUrl = if (json.has("photo_url") && !json.isNull("photo_url")) json.optString("photo_url") else null,
+            loveCount = json.optInt("love_count", 0)
         )
     }
 

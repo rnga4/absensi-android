@@ -64,9 +64,16 @@ class EmployeeActivity : AppCompatActivity() {
             start()
         }
 
+        val tvLoveCount = findViewById<TextView>(R.id.tvLoveCount)
+
         Thread {
             val self = try {
                 AbsensiApi.employeeSelf()
+            } catch (e: Exception) {
+                null
+            }
+            val profile = try {
+                AbsensiApi.getProfile()
             } catch (e: Exception) {
                 null
             }
@@ -83,6 +90,10 @@ class EmployeeActivity : AppCompatActivity() {
                 pulseAnim.cancel()
                 tvStatus.alpha = 1.0f
                 pbAttendance.visibility = View.GONE
+
+                if (profile != null) {
+                    tvLoveCount.text = "❤️ ${profile.loveCount} Vote Diterima"
+                }
 
                 if (bmp != null) {
                     ivAvatar.alpha = 0f

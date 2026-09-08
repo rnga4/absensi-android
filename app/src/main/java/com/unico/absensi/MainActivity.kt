@@ -445,6 +445,22 @@ class MainActivity : AppCompatActivity() {
             tvZoomScale.text = "${(currentZoom * 100).toInt()}%"
         }
 
+        val scaleDetector = android.view.ScaleGestureDetector(this, object : android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: android.view.ScaleGestureDetector): Boolean {
+                currentZoom = (currentZoom * detector.scaleFactor).coerceIn(0.5f, 4.5f)
+                ivPhoto.scaleX = currentZoom
+                ivPhoto.scaleY = currentZoom
+                tvZoomScale.text = "${(currentZoom * 100).toInt()}%"
+                return true
+            }
+        })
+
+        ivPhoto.setOnTouchListener { v, event ->
+            scaleDetector.onTouchEvent(event)
+            v.performClick()
+            true
+        }
+
         btnZoomIn.setOnClickListener {
             if (currentZoom < 4.0f) {
                 currentZoom += 0.4f

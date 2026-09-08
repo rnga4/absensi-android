@@ -178,3 +178,18 @@ Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/use
 - Pemuatan profil dan foto pada `EmployeeActivity` ditempatkan di dalam handler **`onResume()`** agar setiap kali kembali dari layar pengaturan foto (`ProfileSettingsActivity`), avatar dan data pengguna langsung ter-refresh otomatis.
 - TextView inisial sudah bulat via `shape="oval"` (tidak butuh clip). Background oval di XML boleh dibiarkan sebagai fallback.
 - Untuk foto di adapter: selalu `photoCache[synchronizedMap]` + `Thread` + `itemView.post {}` (hindari `CalledFromWrongThreadException`).
+
+---
+
+## 🔍 Interactive Photo Preview Modal & Crown Badge (#1 Top Voted)
+
+### 1. 🖼️ Interactive Photo Zoom Modal
+- **Trigger**: Menekan foto/avatar (`flAvatar`, `ivAvatar`, `tvAvatar`) pada daftar Public Index (Web & Android) akan memunculkan dialog modal foto profil resolusi penuh.
+- **Android (`dialog_employee_photo.xml` / `MainActivity.kt`)**: Menyediakan tombol kontrol zoom (`+`, `-`, `Reset`), indikator rasio skala (`100%`), loading spinner (`ProgressBar`), serta status fallback `tvNoPhoto` ("Tidak Ada Foto") jika karyawan belum mengunggah foto.
+- **Container Touch Target (`flAvatar`)**: FrameLayout 40dp x 40dp pada `item_employee.xml` dibind di `AbsensiAdapter.kt` dengan `android:clickable="true"` dan `selectableItemBackgroundBorderless` ripple, menjamin sentuhan responsif di seluruh area foto/inisial.
+
+### 2. 👑 Crown Badge di Atas Foto Profil (#1 Top Voted)
+- Karyawan peraih **vote Love terbanyak #1** (`rank = 1`) secara otomatis mengenakan icon mahkota **`👑`** di atas foto profil mereka.
+- **Android (`item_employee.xml` / `AbsensiAdapter.kt`)**: `tvCrownBadge` diposisikan melayang secara presisi di atas tengah bingkai avatar (`layout_gravity="top|center_horizontal"` dan `layout_marginTop="-11dp"`), memberikan efek visual karyawan sedang memakai mahkota.
+- **PWA Web (`pwa/js/app.js` / `pwa/css/styles.css`)**: `.crown-badge` diposisikan melayang di atas bundar avatar (`top: -11px; left: 50%`) dengan efek bayangan alami `drop-shadow`.
+

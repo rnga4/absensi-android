@@ -104,11 +104,39 @@ function renderData(json) {
 
   allRows = [];
   const departments = json.departments || [];
+
+  // Calculate top 3 love counts for rank badges
+  const allEmps = [];
+  for (const dept of departments) {
+    for (const emp of dept.employees || []) {
+      if (emp.love_count && emp.love_count > 0) {
+        allEmps.push(emp);
+      }
+    }
+  }
+  const topScores = [...new Set(allEmps.map(e => e.love_count))].sort((a, b) => b - a).slice(0, 3);
+  const rankMap = {};
+  for (const emp of allEmps) {
+    const idx = topScores.indexOf(emp.love_count);
+    if (idx !== -1) {
+      rankMap[emp.emp_code] = idx + 1;
+    }
+  }
+
   for (const dept of departments) {
     const deptName = dept.department || "-";
     allRows.push({ type: "header", name: deptName });
     for (const emp of dept.employees || []) {
-      allRows.push({ type: "employee", name: emp.name || "-", dept: deptName });
+      const rank = rankMap[emp.emp_code] || 0;
+      allRows.push({
+        type: "employee",
+        code: emp.emp_code,
+        name: emp.name || "-",
+        dept: deptName,
+        loveCount: emp.love_count || 0,
+        myVote: !!emp.my_vote,
+        rank: rank
+      });
     }
   }
   renderList(searchInput.value);
@@ -153,12 +181,17 @@ function renderList(query) {
     } else {
       const initials = getInitials(row.name);
       const bg = getAvatarColor(row.name);
+      let rankIcon = "";
+      if (row.rank === 1) rankIcon = " 👑";
+      else if (row.rank === 2) rankIcon = " 🥈";
+      else if (row.rank === 3) rankIcon = " 🥉";
+
       html += `
         <div class="employee-card">
           <div class="emp-main">
             <div class="emp-avatar" style="background: ${bg}">${escapeHtml(initials)}</div>
             <div class="emp-info">
-              <span class="emp-name">${escapeHtml(row.name)}</span>
+              <span class="emp-name">${escapeHtml(row.name)}${rankIcon}</span>
               <span class="emp-dept">${escapeHtml(row.dept)}</span>
             </div>
           </div>

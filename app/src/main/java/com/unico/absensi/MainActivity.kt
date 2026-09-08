@@ -296,6 +296,24 @@ class MainActivity : AppCompatActivity() {
         filterList(etSearch.text.toString())
     }
 
+    private val autoRefreshHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val autoRefreshRunnable = object : Runnable {
+        override fun run() {
+            fetchData(0)
+            autoRefreshHandler.postDelayed(this, 60000)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        autoRefreshHandler.postDelayed(autoRefreshRunnable, 60000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        autoRefreshHandler.removeCallbacks(autoRefreshRunnable)
+    }
+
     private fun handleVote(employee: ListRow.Employee) {
         if (!Prefs.isLoggedIn()) {
             android.widget.Toast.makeText(
@@ -324,6 +342,22 @@ class MainActivity : AppCompatActivity() {
                         updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
                         val msg = result.message ?: "Gagal memberikan vote."
                         android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: ApiClient.HttpException) {
+                runOnUiThread {
+                    updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
+                    if (e.code == 401) {
+                        Prefs.clear()
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Sesi Berakhir")
+                            .setMessage("Sesi login Anda telah kadaluarsa. Silakan masuk kembali.")
+                            .setPositiveButton("Masuk") { _, _ ->
+                                startActivity(android.content.Intent(this, LoginActivity::class.java))
+                            }
+                            .show()
+                    } else {
+                        android.widget.Toast.makeText(this, "Gagal memberikan vote.", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

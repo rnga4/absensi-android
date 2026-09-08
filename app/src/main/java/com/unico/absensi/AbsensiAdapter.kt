@@ -104,6 +104,18 @@ class AbsensiAdapter(
                 tvVoteCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.text_secondary))
             }
             btnVote.setOnClickListener {
+                btnVote.animate()
+                    .scaleX(1.15f)
+                    .scaleY(1.15f)
+                    .setDuration(90)
+                    .withEndAction {
+                        btnVote.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(90)
+                            .start()
+                    }
+                    .start()
                 onVoteClick?.invoke(item)
             }
 

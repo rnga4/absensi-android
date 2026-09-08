@@ -117,6 +117,7 @@ class AbsensiAdapter(
         private val btnVote: View = view.findViewById(R.id.btnVote)
         private val tvVoteIcon: TextView = view.findViewById(R.id.tvVoteIcon)
         private val tvVoteCount: TextView = view.findViewById(R.id.tvVoteCount)
+        private val tvRankBadge: TextView = view.findViewById(R.id.tvRankBadge)
         private var currentItem: ListRow.Employee? = null
 
         fun bindVoteStateOnly(item: ListRow.Employee) {
@@ -138,6 +139,24 @@ class AbsensiAdapter(
             tvName.text = item.name
             tvDept.text = item.dept
             tvAvatar.text = getInitials(item.name)
+
+            when (item.rank) {
+                1 -> {
+                    tvRankBadge.text = "👑"
+                    tvRankBadge.visibility = View.VISIBLE
+                }
+                2 -> {
+                    tvRankBadge.text = "🥈"
+                    tvRankBadge.visibility = View.VISIBLE
+                }
+                3 -> {
+                    tvRankBadge.text = "🥉"
+                    tvRankBadge.visibility = View.VISIBLE
+                }
+                else -> {
+                    tvRankBadge.visibility = View.GONE
+                }
+            }
 
             bindVoteStateOnly(item)
 

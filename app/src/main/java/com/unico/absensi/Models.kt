@@ -7,7 +7,8 @@ sealed class ListRow {
         val name: String,
         val dept: String,
         val loveCount: Int = 0,
-        val hasLoved: Boolean = false
+        val hasLoved: Boolean = false,
+        val rank: Int = 0
     ) : ListRow()
 }
 

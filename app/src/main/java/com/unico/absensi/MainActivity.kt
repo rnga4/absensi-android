@@ -319,8 +319,31 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        allRows = rows
+        allRows = calculateRanks(rows)
         filterList(etSearch.text.toString())
+    }
+
+    private fun calculateRanks(rows: List<ListRow>): List<ListRow> {
+        val employees = rows.filterIsInstance<ListRow.Employee>().filter { it.loveCount > 0 }
+        if (employees.isEmpty()) return rows.map { if (it is ListRow.Employee) it.copy(rank = 0) else it }
+
+        val topScores = employees.map { it.loveCount }.distinct().sortedDescending().take(3)
+        val rankMap = HashMap<String, Int>()
+
+        for (emp in employees) {
+            val rankIndex = topScores.indexOf(emp.loveCount)
+            if (rankIndex != -1) {
+                rankMap[emp.empCode] = rankIndex + 1
+            }
+        }
+
+        return rows.map { row ->
+            if (row is ListRow.Employee) {
+                row.copy(rank = rankMap[row.empCode] ?: 0)
+            } else {
+                row
+            }
+        }
     }
 
     private val autoRefreshHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -359,32 +382,14 @@ class MainActivity : AppCompatActivity() {
 
         Thread {
             try {
-                val result = AbsensiApi.vote(employee.empCode)
+                val res = AbsensiApi.vote(employee.empCode)
                 runOnUiThread {
-                    if (result.success) {
-                        updateVoteInList(employee.empCode, result.loveCount, result.myVote)
-                        val msg = if (result.state == "removed") "Love kamu dihapus." else "Love kamu ditambahkan ❤️"
-                        android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    if (res.success) {
+                        updateVoteInList(employee.empCode, res.loveCount, res.myVote)
                     } else {
                         updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
-                        val msg = result.message ?: "Gagal memberikan vote."
+                        val msg = res.message ?: "Gagal memberikan vote."
                         android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: ApiClient.HttpException) {
-                runOnUiThread {
-                    updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
-                    if (e.code == 401) {
-                        Prefs.clear()
-                        androidx.appcompat.app.AlertDialog.Builder(this)
-                            .setTitle("Sesi Berakhir")
-                            .setMessage("Sesi login Anda telah kadaluarsa. Silakan masuk kembali.")
-                            .setPositiveButton("Masuk") { _, _ ->
-                                startActivity(android.content.Intent(this, LoginActivity::class.java))
-                            }
-                            .show()
-                    } else {
-                        android.widget.Toast.makeText(this, "Gagal memberikan vote.", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -397,14 +402,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateVoteInList(empCode: String, loveCount: Int, hasLoved: Boolean) {
-        allRows = allRows.map { row ->
+        val updated = allRows.map { row ->
             if (row is ListRow.Employee && row.empCode == empCode) {
                 row.copy(loveCount = loveCount, hasLoved = hasLoved)
             } else {
                 row
             }
         }
-        adapter.updateVoteState(empCode, loveCount, hasLoved)
+        allRows = calculateRanks(updated)
+        filterList(etSearch.text.toString())
     }
 
     private fun showPhotoPreviewDialog(employee: ListRow.Employee, cachedBitmap: Bitmap?) {

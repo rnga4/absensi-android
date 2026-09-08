@@ -11,24 +11,30 @@ import java.util.concurrent.TimeUnit
 class AbsensiWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {
 
-    private val urls = listOf(
-        "http://192.168.1.37:9790/api_public.php",
-        "http://100.102.13.11:9790/api_public.php"
-    )
-
     private val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
+        .connectTimeout(2500, TimeUnit.MILLISECONDS)
         .readTimeout(5, TimeUnit.SECONDS)
         .build()
 
     override suspend fun doWork(): Result {
+        Prefs.init(applicationContext)
+        val urls = ApiConfig.url(ApiConfig.PUBLIC)
+
         for (url in urls) {
             try {
                 val request = Request.Builder().url(url).build()
                 val response = client.newCall(request).execute()
                 val body = response.body?.string() ?: continue
-                val json = JSONObject(body)
+                if (!response.isSuccessful) continue
 
+                for (base in ApiConfig.baseUrls) {
+                    if (url.startsWith(base)) {
+                        Prefs.saveLastBaseUrl(base)
+                        break
+                    }
+                }
+
+                val json = JSONObject(body)
                 val allPresent = json.optBoolean("all_present", true)
                 val total = json.optInt("total_not_absen", 0)
 

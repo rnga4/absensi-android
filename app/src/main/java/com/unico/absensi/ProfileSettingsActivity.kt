@@ -29,6 +29,9 @@ class ProfileSettingsActivity : AppCompatActivity() {
     private lateinit var tvPassMessage: TextView
     private lateinit var btnSavePassword: MaterialButton
     private lateinit var btnChangePhoto: MaterialButton
+    private lateinit var tvAboutName: TextView
+    private lateinit var tvAboutCopyright: TextView
+    private lateinit var tvLicense: TextView
 
     private var username = ""
 
@@ -54,6 +57,9 @@ class ProfileSettingsActivity : AppCompatActivity() {
         tvPassMessage = findViewById(R.id.tvPassMessage)
         btnSavePassword = findViewById(R.id.btnSavePassword)
         btnChangePhoto = findViewById(R.id.btnChangePhoto)
+        tvAboutName = findViewById(R.id.tvAboutName)
+        tvAboutCopyright = findViewById(R.id.tvAboutCopyright)
+        tvLicense = findViewById(R.id.tvLicense)
 
         applyAvatarClip()
 
@@ -76,6 +82,10 @@ class ProfileSettingsActivity : AppCompatActivity() {
         btnChangePhoto.setOnClickListener {
             pickPhotoLauncher.launch("image/*")
         }
+
+        tvAboutName.text = "${getString(R.string.app_name)}  v${BuildConfig.VERSION_NAME}"
+        tvAboutCopyright.text = "© 2026 rnga4"
+        tvLicense.setOnClickListener { showLicenseDialog() }
 
         btnSavePassword.setOnClickListener {
             changePassword()
@@ -261,6 +271,24 @@ class ProfileSettingsActivity : AppCompatActivity() {
                 }
             }
         }.start()
+    }
+
+    private fun showLicenseDialog() {
+        val licenseText = try {
+            assets.open("LICENSE.txt").bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            "Copyright (c) 2026 rnga4\n\nMIT License. Bebas dipakai, dimodifikasi, dan didistribusikan dengan tetap mencantumkan atribusi."
+        }
+        val thirdParty = "\n\nLibrary pihak ketiga:\n" +
+            "• OkHttp — Apache License 2.0\n" +
+            "• Kotlin — Apache License 2.0\n" +
+            "• AndroidX — Apache License 2.0\n" +
+            "• Material Components — Apache License 2.0"
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Lisensi MIT")
+            .setMessage(licenseText + thirdParty)
+            .setPositiveButton("Tutup", null)
+            .show()
     }
 
     private fun showPassError(msg: String) {

@@ -77,7 +77,8 @@ absensi-android/
 ├── app/
 │   ├── build.gradle.kts         # App dependencies (OkHttp, WorkManager, Material)
 │       └── src/main/
-│           ├── AndroidManifest.xml  # Manifest with permissions & WorkManager setup
+│               ├── AndroidManifest.xml  # Manifest with permissions & WorkManager setup
+│               ├── assets/LICENSE.txt   # Teks MIT + copyright (ikut ter-package di APK)
 │           ├── java/com/unico/absensi/
 │           │   ├── MainActivity.kt        # Index publik: daftar belum absen, search, refresh animation, vote ❤️
 │           │   ├── AbsensiAdapter.kt      # Adapter index publik (Swiss headers, avatar foto bulat, vote button)
@@ -201,7 +202,7 @@ Semua data profil (foto & password) disimpan di **server** (SQLite `app/data/use
 
 ### Alur
 - **Halaman profil user normal** (`EmployeeActivity`): avatar bulat menampilkan foto asli & jumlah akumulasi love vote (`❤️ X`); **ketuk avatar** → buka `ProfileSettingsActivity`. Penguatan siklus hidup `onResume()` memastikan foto profil yang baru diganti di `ProfileSettingsActivity` langsung di-fetch dan ter-update secara *real-time* tanpa perlu menutup aplikasi.
-- **`ProfileSettingsActivity`**: tombol **Ganti Foto** (pilih dari galeri → dimampatkan ke ≤2400px → upload multipart → `setResult(RESULT_OK)` + tampil langsung di layar), form **ganti password** (lama / baru / konfirmasi + pesan error), tombol kembali.
+- **`ProfileSettingsActivity`**: tombol **Ganti Foto** (pilih dari galeri → dimampatkan ke ≤2400px → upload multipart → `setResult(RESULT_OK)` + tampil langsung di layar), form **ganti password** (lama / baru / konfirmasi + pesan error), tombol kembali. **Kartu `[ TENTANG & LISENSI ]`** di bawah form password menampilkan versi app (`BuildConfig.VERSION_NAME`, butuh `buildConfig = true` di build.gradle.kts) + copyright `© 2026 rnga4`; ketuk `tvLicense` → dialog MIT yang dibaca dari `assets/LICENSE.txt` + kredit library pihak ketiga.
 - **Index Publik** (`MainActivity`/`AbsensiAdapter`) & **Dashboard Admin** (`AdminAdapter`): avatar menampilkan **foto karyawan bulat** (di-cache per emp_code, dimuat async, `itemView.post` saat selesai — jangan panggil `notifyItemChanged` dari thread background). Fallback inisial lingkaran berwarna.
 - **Tampilan Vote Love**: Format minimalis emote + angka (`❤️ X`) di-render di index publik, modal dialog profil web `public.php`, halaman profil web `employee.php`, dan halaman profil Android `EmployeeActivity`.
 

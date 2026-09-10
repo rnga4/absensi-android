@@ -106,11 +106,11 @@ class AdminActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 swipeRefresh.isRefreshing = false
                 if (dash == null) {
                     tvDate.text = "Gagal konek ke server"
-                    return@runOnUiThread
+                    return@runOnUiThreadSafe
                 }
 
                 tvDate.text = "MONITOR ${dash.date}"

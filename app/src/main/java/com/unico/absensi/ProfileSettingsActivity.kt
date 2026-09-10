@@ -31,6 +31,8 @@ class ProfileSettingsActivity : AppCompatActivity() {
     private lateinit var tvAboutName: TextView
     private lateinit var tvAboutCopyright: TextView
     private lateinit var tvLicense: TextView
+    private lateinit var etServerUrl: EditText
+    private lateinit var btnSaveServer: MaterialButton
 
     private var username = ""
 
@@ -58,6 +60,16 @@ class ProfileSettingsActivity : AppCompatActivity() {
         tvAboutName = findViewById(R.id.tvAboutName)
         tvAboutCopyright = findViewById(R.id.tvAboutCopyright)
         tvLicense = findViewById(R.id.tvLicense)
+        etServerUrl = findViewById(R.id.etServerUrl)
+        btnSaveServer = findViewById(R.id.btnSaveServer)
+
+        val customUrl = Prefs.getCustomBaseUrl()
+        etServerUrl.setText(customUrl ?: ApiConfig.baseUrls.first())
+
+        btnSaveServer.setOnClickListener {
+            Haptics.click(this)
+            saveServerUrl()
+        }
 
         applyAvatarClip()
 
@@ -120,7 +132,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 if (profile != null) {
                     tvName.text = profile.name
                     tvEmpInfo.text = buildString {
@@ -144,7 +156,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
         }
         Thread {
             val bmp = AbsensiApi.getPhoto(username)
-            runOnUiThread {
+            runOnUiThreadSafe {
                 if (bmp != null) {
                     ivAvatar.setImageDrawable(bmp.toCircularDrawable(ivAvatar.resources))
                     ivAvatar.visibility = View.VISIBLE
@@ -179,7 +191,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 flAvatar.isEnabled = true
                 flAvatar.alpha = 1.0f
                 tvPassMessage.visibility = View.VISIBLE
@@ -257,7 +269,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 btnSavePassword.isEnabled = true
                 btnSavePassword.text = "Simpan Password"
                 if (result != null) {
@@ -275,6 +287,23 @@ class ProfileSettingsActivity : AppCompatActivity() {
                 }
             }
         }.start()
+    }
+
+    private fun saveServerUrl() {
+        var url = etServerUrl.text.toString().trim()
+        tvPassMessage.visibility = View.VISIBLE
+        if (url.isEmpty() ||
+            (!url.startsWith("http://") && !url.startsWith("https://"))
+        ) {
+            tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.danger))
+            tvPassMessage.text = "Alamat server tidak valid. Contoh: http://192.168.1.37:9790"
+            return
+        }
+        url = url.trimEnd('/')
+        while (url.endsWith("/")) url = url.dropLast(1)
+        Prefs.setCustomBaseUrl(url)
+        tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.success))
+        tvPassMessage.text = "Alamat server disimpan. Aplikasi akan memakai server ini lebih dulu."
     }
 
     private fun showLicenseDialog() {

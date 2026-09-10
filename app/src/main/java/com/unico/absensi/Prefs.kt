@@ -23,6 +23,8 @@ object Prefs {
 
     private const val KEY_LAST_BASE_URL = "last_base_url"
     private const val KEY_CACHED_PUBLIC_JSON = "cached_public_json"
+    private const val KEY_CUSTOM_BASE_URL = "custom_base_url"
+    private const val KEY_LAST_NOTIF_AT = "last_notif_at"
 
     private lateinit var sp: SharedPreferences
 
@@ -78,11 +80,37 @@ object Prefs {
         return if (::sp.isInitialized) sp.getString(KEY_CACHED_PUBLIC_JSON, null) else null
     }
 
+    fun getCustomBaseUrl(): String? {
+        return if (::sp.isInitialized) sp.getString(KEY_CUSTOM_BASE_URL, null) else null
+    }
+
+    fun setCustomBaseUrl(url: String) {
+        if (::sp.isInitialized) {
+            sp.edit().putString(KEY_CUSTOM_BASE_URL, url).apply()
+        }
+    }
+
+    fun getLastNotifAt(): Long? {
+        return if (::sp.isInitialized && sp.contains(KEY_LAST_NOTIF_AT)) {
+            sp.getLong(KEY_LAST_NOTIF_AT, 0L)
+        } else {
+            null
+        }
+    }
+
+    fun setLastNotifAt(timestamp: Long) {
+        if (::sp.isInitialized) {
+            sp.edit().putLong(KEY_LAST_NOTIF_AT, timestamp).apply()
+        }
+    }
+
     fun clear() {
         val lastUrl = getLastBaseUrl()
         val cachedJson = getCachedPublicJson()
+        val customUrl = getCustomBaseUrl()
         sp.edit().clear().apply()
         if (lastUrl != null) saveLastBaseUrl(lastUrl)
         if (cachedJson != null) saveCachedPublicJson(cachedJson)
+        if (customUrl != null) setCustomBaseUrl(customUrl)
     }
 }

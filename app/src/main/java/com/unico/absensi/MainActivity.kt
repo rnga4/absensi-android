@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var allRows = listOf<ListRow>()
     private var stripAnimator: ValueAnimator? = null
     private var stripState = RefreshState.IDLE
+    private val votesInFlight = mutableSetOf<String>()
 
     private val notifPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -247,7 +248,7 @@ class MainActivity : AppCompatActivity() {
     private fun fetchData(urlIndex: Int) {
         val currentUrls = urls
         if (urlIndex >= currentUrls.size) {
-            runOnUiThread {
+            runOnUiThreadSafe {
                 stopRefreshAnim()
                 if (allRows.isEmpty()) {
                     tvDate.text = "Gagal konek ke server"
@@ -278,7 +279,7 @@ class MainActivity : AppCompatActivity() {
                     try {
                         val json = JSONObject(body)
                         Prefs.saveCachedPublicJson(body)
-                        runOnUiThread { bindData(json) }
+                        runOnUiThreadSafe { bindData(json) }
                         return
                     } catch (_: Exception) {}
                 }
@@ -379,6 +380,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(android.content.Intent(this, LoginActivity::class.java))
             return
         }
+        // Double-tap / race guard: batalkan bila vote sedang berjalan untuk emp ini
+        if (!votesInFlight.add(employee.empCode)) return
 
         // Optimistic UI Update (instant response)
         val optimisticHasLoved = !employee.hasLoved
@@ -388,7 +391,8 @@ class MainActivity : AppCompatActivity() {
         Thread {
             try {
                 val res = AbsensiApi.vote(employee.empCode)
-                runOnUiThread {
+                runOnUiThreadSafe {
+                    votesInFlight.remove(employee.empCode)
                     if (res.success) {
                         updateVoteInList(employee.empCode, res.loveCount, res.myVote)
                     } else {
@@ -398,7 +402,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                runOnUiThread {
+                runOnUiThreadSafe {
+                    votesInFlight.remove(employee.empCode)
                     updateVoteInList(employee.empCode, employee.loveCount, employee.hasLoved)
                     android.widget.Toast.makeText(this, "Gagal menghubungi server.", android.widget.Toast.LENGTH_SHORT).show()
                 }
@@ -501,7 +506,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     null
                 }
-                runOnUiThread {
+                runOnUiThreadSafe {
                     pbLoading.visibility = View.GONE
                     if (bmp != null) {
                         adapter.addPhoto(employee.empCode, bmp)

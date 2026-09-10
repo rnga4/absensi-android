@@ -2,11 +2,16 @@ package com.unico.absensi
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.LruCache
 import org.json.JSONObject
 
 object AbsensiApi {
 
     private var client: ApiClient? = null
+
+    private val photoCache = object : LruCache<String, Bitmap>(8 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount
+    }
 
     fun init(api: ApiClient) {
         client = api
@@ -142,8 +147,12 @@ object AbsensiApi {
 
     fun getPhoto(username: String): Bitmap? {
         return try {
+            val key = "u:$username"
+            photoCache.get(key)?.let { return it }
             val bytes = api().getPhotoBytes(username)
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            if (bmp != null) photoCache.put(key, bmp)
+            bmp
         } catch (_: Exception) {
             null
         }
@@ -151,8 +160,12 @@ object AbsensiApi {
 
     fun getPublicPhotoByEmp(empCode: String): Bitmap? {
         return try {
+            val key = "e:$empCode"
+            photoCache.get(key)?.let { return it }
             val bytes = api().getPublicPhotoByEmp(empCode)
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            if (bmp != null) photoCache.put(key, bmp)
+            bmp
         } catch (_: Exception) {
             null
         }

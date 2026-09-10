@@ -38,12 +38,13 @@ class AbsensiWorker(context: Context, params: WorkerParameters) :
                 val allPresent = json.optBoolean("all_present", true)
                 val total = json.optInt("total_not_absen", 0)
 
-                if (!allPresent && total > 0) {
+                if (!allPresent && total > 0 && shouldNotify()) {
                     NotificationHelper.show(
                         applicationContext,
                         "Belum Absen",
                         "$total karyawan belum absen hari ini"
                     )
+                    Prefs.setLastNotifAt(System.currentTimeMillis())
                 }
                 return Result.success()
             } catch (e: Exception) {
@@ -51,5 +52,13 @@ class AbsensiWorker(context: Context, params: WorkerParameters) :
             }
         }
         return Result.retry()
+    }
+
+    private fun shouldNotify(): Boolean {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        if (hour < 6 || hour > 22) return false
+
+        val last = Prefs.getLastNotifAt() ?: return true
+        return System.currentTimeMillis() - last >= 3 * 60 * 60 * 1000L
     }
 }

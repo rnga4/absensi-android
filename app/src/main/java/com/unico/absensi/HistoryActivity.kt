@@ -76,7 +76,7 @@ class HistoryActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 if (list != null) {
                     historyItems.addAll(list)
                     adapter.updateItems(historyItems.toList())

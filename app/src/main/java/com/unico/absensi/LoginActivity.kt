@@ -44,7 +44,7 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     null
                 }
-                runOnUiThread {
+                runOnUiThreadSafe {
                     btnLogin.isEnabled = true
                     btnLogin.text = "Masuk"
                     if (user != null) {

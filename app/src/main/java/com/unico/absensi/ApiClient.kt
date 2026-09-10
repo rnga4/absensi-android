@@ -1,6 +1,7 @@
 package com.unico.absensi
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -19,10 +20,19 @@ class ApiClient(context: Context) {
 
     private val cookieStorage = PersistentCookieStorage(context)
 
+    private val appContext = context.applicationContext
+
     private val client = OkHttpClient.Builder()
         .cookieJar(cookieStorage)
         .connectTimeout(2500, TimeUnit.MILLISECONDS)
         .readTimeout(8, TimeUnit.SECONDS)
+        .build()
+
+    private val uploadClient = OkHttpClient.Builder()
+        .cookieJar(cookieStorage)
+        .connectTimeout(2500, TimeUnit.MILLISECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
     private val formType = "application/x-www-form-urlencoded".toMediaType()
@@ -76,7 +86,10 @@ class ApiClient(context: Context) {
                         saveWorkingBaseUrlFrom(url)
                         return bytes
                     }
-                    if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
+                    if (!it.isSuccessful) {
+                        lastError = HttpException(it.code, "<photo>")
+                        if (it.code == 401) handleSessionExpired()
+                    }
                 }
             } catch (e: Exception) {
                 lastError = e
@@ -98,7 +111,10 @@ class ApiClient(context: Context) {
                         saveWorkingBaseUrlFrom(url)
                         return bytes
                     }
-                    if (!it.isSuccessful) lastError = HttpException(it.code, "<photo>")
+                    if (!it.isSuccessful) {
+                        lastError = HttpException(it.code, "<photo>")
+                        if (it.code == 401) handleSessionExpired()
+                    }
                 }
             } catch (e: Exception) {
                 lastError = e
@@ -137,7 +153,7 @@ class ApiClient(context: Context) {
             .addPart(filePart)
             .build()
         return requestWithFailover(ApiConfig.url(ApiConfig.PROFILE)) { url ->
-            client.newCall(Request.Builder().url(url).post(body).build()).execute()
+            uploadClient.newCall(Request.Builder().url(url).post(body).build()).execute()
         }
     }
 
@@ -155,6 +171,7 @@ class ApiClient(context: Context) {
                         return body
                     }
                     if (resp.code == 401) {
+                        handleSessionExpired()
                         throw HttpException(resp.code, body)
                     }
                     lastError = HttpException(resp.code, body)
@@ -164,6 +181,18 @@ class ApiClient(context: Context) {
             }
         }
         throw lastError ?: IOException("Semua server tidak dapat dijangkau")
+    }
+
+    private fun handleSessionExpired() {
+        Prefs.init(appContext)
+        if (!Prefs.isLoggedIn()) return
+        Prefs.clear()
+        cookieStorage.clear()
+        runCatching {
+            val intent = Intent(appContext, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            appContext.startActivity(intent)
+        }
     }
 
     private fun saveWorkingBaseUrlFrom(fullUrl: String) {
@@ -189,8 +218,22 @@ class ApiClient(context: Context) {
 
 class PersistentCookieStorage(private val context: Context) : CookieJar {
 
-    private val prefs =
-        context.getSharedPreferences("absensi_cookies", Context.MODE_PRIVATE)
+    private val prefs: android.content.SharedPreferences by lazy {
+        try {
+            val masterKey = androidx.security.crypto.MasterKey.Builder(context)
+                .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            androidx.security.crypto.EncryptedSharedPreferences.create(
+                context,
+                "absensi_cookies_secure",
+                masterKey,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            context.getSharedPreferences("absensi_cookies", Context.MODE_PRIVATE)
+        }
+    }
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         for (cookie in cookies) {

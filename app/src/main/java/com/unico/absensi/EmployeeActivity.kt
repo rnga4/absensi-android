@@ -14,6 +14,7 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
 
 class EmployeeActivity : AppCompatActivity() {
@@ -31,6 +32,7 @@ class EmployeeActivity : AppCompatActivity() {
     private lateinit var tvLoveCount: TextView
     private lateinit var btnPublic: MaterialButton
     private lateinit var cardAttendance: View
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private var username = ""
     private var pulseAnim: android.animation.ObjectAnimator? = null
@@ -61,6 +63,12 @@ class EmployeeActivity : AppCompatActivity() {
         tvOut = findViewById(R.id.tvOut)
         tvLoveCount = findViewById(R.id.tvLoveCount)
         btnPublic = findViewById(R.id.btnPublic)
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+
+        swipeRefresh.setColorSchemeColors(
+            ContextCompat.getColor(this, R.color.accent)
+        )
+        swipeRefresh.setOnRefreshListener { loadData() }
 
         btnPublic.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
 
@@ -140,6 +148,7 @@ class EmployeeActivity : AppCompatActivity() {
         if (isLoading) return
         isLoading = true
 
+        swipeRefresh.isRefreshing = true
         pulseAnim?.cancel()
         pbAttendance.visibility = View.VISIBLE
         pulseAnim = android.animation.ObjectAnimator.ofFloat(tvStatus, "alpha", 0.35f, 1.0f).apply {
@@ -169,8 +178,9 @@ class EmployeeActivity : AppCompatActivity() {
             } else {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 isLoading = false
+                swipeRefresh.isRefreshing = false
                 pulseAnim?.cancel()
                 tvStatus.alpha = 1.0f
                 pbAttendance.visibility = View.GONE
@@ -206,7 +216,7 @@ class EmployeeActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 null
             }
-            runOnUiThread {
+            runOnUiThreadSafe {
                 isLoading = false
                 renderSelf(self, showError = false)
             }

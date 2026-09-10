@@ -1,7 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) {
+        keystorePropsFile.inputStream().use { load(it) }
+    }
+}
+val hasReleaseSigning =
+    keystorePropsFile.exists() &&
+    keystoreProps["STORE_FILE"] != null &&
+    keystoreProps["KEY_ALIAS"] != null &&
+    keystoreProps["STORE_PASSWORD"] != null &&
+    keystoreProps["KEY_PASSWORD"] != null
 
 android {
     namespace = "com.unico.absensi"
@@ -11,11 +26,24 @@ android {
         applicationId = "com.unico.absensi"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
+    }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps["STORE_FILE"] as String)
+                storePassword = keystoreProps["STORE_PASSWORD"] as String
+                keyAlias = keystoreProps["KEY_ALIAS"] as String
+                keyPassword = keystoreProps["KEY_PASSWORD"] as String
+            }
+        }
     }
     buildTypes {
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

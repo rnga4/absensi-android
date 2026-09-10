@@ -22,3 +22,8 @@ build.log
 
 # Source icon assets (resized copies live in res/)
 icon/
+
+# Release signing (jangan di-commit)
+keystore.properties
+*.jks
+*.keystore

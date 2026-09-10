@@ -1,10 +1,16 @@
 package com.unico.absensi
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -60,15 +66,11 @@ class EmployeeActivity : AppCompatActivity() {
 
         btnPublic.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
 
-        findViewById<TextView>(R.id.tvLogout).setOnClickListener {
-            LogoutHelper.confirmAndLogout(this)
+        findViewById<ImageView>(R.id.btnMenu).setOnClickListener {
+            showProfileMenu()
         }
 
         flAvatar.setOnClickListener {
-            startActivity(Intent(this, ProfileSettingsActivity::class.java))
-        }
-
-        findViewById<ImageView>(R.id.ivSettings).setOnClickListener {
             startActivity(Intent(this, ProfileSettingsActivity::class.java))
         }
 
@@ -87,6 +89,38 @@ class EmployeeActivity : AppCompatActivity() {
         btnPublic.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
+    }
+
+    private fun showProfileMenu() {
+        val anchor = findViewById<View>(R.id.btnMenu)
+        val view = LayoutInflater.from(this).inflate(R.layout.popup_profile_menu, null)
+        val popup = PopupWindow(
+            view,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        popup.isFocusable = true
+        popup.elevation = 12f
+        popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        view.findViewById<View>(R.id.menuProfile).setOnClickListener {
+            popup.dismiss()
+            startActivity(Intent(this, ProfileSettingsActivity::class.java))
+        }
+        view.findViewById<View>(R.id.menuLogout).setOnClickListener {
+            popup.dismiss()
+            LogoutHelper.confirmAndLogout(this)
+        }
+
+        val density = view.resources.displayMetrics.density
+        val widthPx = view.resources.displayMetrics.widthPixels
+        val menuWidth = (248f * density).toInt()
+        val loc = IntArray(2)
+        anchor.getLocationOnScreen(loc)
+        val anchorRight = loc[0] + anchor.width
+        val overflow = anchorRight + menuWidth - widthPx
+        val offsetX = if (overflow > 0) -overflow else 0
+        popup.showAsDropDown(anchor, offsetX, 8)
     }
 
     override fun onResume() {

@@ -31,7 +31,7 @@
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
-            android:text="[ HISTORY ]"
+            android:text="@string/tag_history"
             android:textColor="@color/text_secondary"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:letterSpacing="-0.03"
-            android:text="Riwayat Kehadiran"
+            android:text="@string/title_history"
             android:textColor="@color/text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />

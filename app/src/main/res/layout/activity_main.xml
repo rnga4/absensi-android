@@ -31,7 +31,7 @@
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
-            android:text="[ SYSTEM / LIVE FEED ]"
+            android:text="@string/tag_system_feed"
             android:textColor="@color/text_secondary"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:letterSpacing="-0.03"
-            android:text="Absensi Karyawan"
+            android:text="@string/title_feed"
             android:textColor="@color/text_primary"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -75,7 +75,7 @@
             android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="10dp"
             android:drawableTint="@color/text_secondary"
-            android:hint="Cari nama karyawan..."
+            android:hint="@string/hint_search"
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:paddingStart="14dp"
@@ -111,7 +111,7 @@
             android:paddingTop="4dp"
             android:paddingEnd="10dp"
             android:paddingBottom="4dp"
-            android:text="[ SYNCING... ]"
+            android:text="@string/refresh_syncing"
             android:textColor="@color/text_on_accent"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -166,7 +166,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:letterSpacing="0.05"
-                    android:text="[ NO DATA FOUND ]"
+                    android:text="@string/no_data_title"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -176,7 +176,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Tidak ada karyawan yang cocok dengan pencarian"
+                    android:text="@string/feed_empty_sub"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>

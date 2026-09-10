@@ -44,7 +44,7 @@
                     android:paddingTop="3dp"
                     android:paddingEnd="6dp"
                     android:paddingBottom="3dp"
-                    android:text="[ STAFF ACCESS ]"
+                    android:text="@string/tag_staff_access"
                     android:textColor="@color/text_secondary"
                     android:textSize="8sp"
                     android:textStyle="bold" />
@@ -54,7 +54,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:clickable="true"
-                    android:contentDescription="Menu"
+                    android:contentDescription="@string/cd_menu"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:padding="4dp"
                     android:src="@drawable/ic_menu_hamburger"
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:letterSpacing="-0.03"
-                android:text="Profil Saya"
+                android:text="@string/title_profile"
                 android:textColor="@color/text_primary"
                 android:textSize="28sp"
                 android:textStyle="bold" />
@@ -91,7 +91,7 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_avatar_circle"
                         android:clipToOutline="true"
-                        android:contentDescription="Foto Profil"
+                        android:contentDescription="@string/cd_photo"
                         android:scaleType="centerCrop" />
 
                     <TextView
@@ -148,7 +148,7 @@
                         android:paddingTop="3dp"
                         android:paddingEnd="8dp"
                         android:paddingBottom="3dp"
-                        android:text="❤️ 0"
+                        android:text="@string/heart_zero"
                         android:textColor="@color/badge_danger_text"
                         android:textSize="11sp"
                         android:textStyle="bold" />
@@ -178,7 +178,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="MEMUAT STATUS KEHADIRAN..."
+                        android:text="@string/loading_status"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:letterSpacing="0.04"
@@ -207,7 +207,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="IN"
+                            android:text="@string/label_in"
                             android:textColor="@color/text_secondary"
                             android:textSize="10sp"
                             android:letterSpacing="0.08"
@@ -218,7 +218,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="--:--"
+                            android:text="@string/time_placeholder"
                             android:textColor="@color/text_secondary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -233,7 +233,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="OUT"
+                            android:text="@string/label_out"
                             android:textColor="@color/text_secondary"
                             android:textSize="10sp"
                             android:letterSpacing="0.08"
@@ -244,7 +244,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="--:--"
+                            android:text="@string/time_placeholder"
                             android:textColor="@color/text_secondary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -262,7 +262,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="16dp"
-        android:text="Index Publik"
+        android:text="@string/btn_index_public"
         android:textAllCaps="false"
         android:textSize="15sp"
         android:textStyle="bold"

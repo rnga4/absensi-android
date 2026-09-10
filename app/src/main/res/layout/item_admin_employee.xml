@@ -32,7 +32,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_avatar_circle"
                 android:clipToOutline="true"
-                android:contentDescription="Foto Profil"
+                android:contentDescription="@string/cd_photo"
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
@@ -95,7 +95,7 @@
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
-            android:text="HADIR"
+            android:text="@string/badge_hadir"
             android:textColor="@color/badge_success_text"
             android:textSize="10sp"
             android:letterSpacing="0.04"

@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:text="Pengaturan Profil Saya"
+            android:text="@string/menu_profile"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:text="Logout"
+            android:text="@string/menu_logout"
             android:textColor="@color/badge_danger_text"
             android:textSize="14sp"
             android:textStyle="bold" />

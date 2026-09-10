@@ -1,3 +1,80 @@
 <resources>
     <string name="app_name">Absensi</string>
+
+    <!-- Tag badges -->
+    <string name="tag_staff_access">[ STAFF ACCESS ]</string>
+    <string name="tag_system_admin">[ SYSTEM / ADMIN ACCESS ]</string>
+    <string name="tag_system_feed">[ SYSTEM / LIVE FEED ]</string>
+    <string name="tag_admin_monitor">[ ADMIN MONITOR ]</string>
+    <string name="tag_history">[ HISTORY ]</string>
+    <string name="tag_change_password">[ GANTI PASSWORD ]</string>
+    <string name="tag_about_license">[ TENTANG &amp; LISENSI ]</string>
+    <string name="tag_server">[ KONEKSI SERVER ]</string>
+
+    <!-- Titles -->
+    <string name="title_login">Masuk</string>
+    <string name="title_profile">Profil Saya</string>
+    <string name="title_settings">Pengaturan Profil</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_feed">Absensi Karyawan</string>
+    <string name="title_history">Riwayat Kehadiran</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Absensi Monitor — admin atau karyawan</string>
+    <string name="login_error">Username atau password salah.</string>
+    <string name="label_username">Username / Emp Code</string>
+    <string name="hint_username">admin atau kode karyawan</string>
+    <string name="label_password">Password</string>
+    <string name="hint_password">••••••••</string>
+    <string name="btn_login">Masuk</string>
+    <string name="btn_view_public">Lihat Index Publik</string>
+
+    <!-- Staff home -->
+    <string name="loading_status">MEMUAT STATUS KEHADIRAN...</string>
+    <string name="label_in">IN</string>
+    <string name="label_out">OUT</string>
+    <string name="time_placeholder">--:--</string>
+    <string name="heart_zero">❤️ 0</string>
+    <string name="btn_index_public">Index Publik</string>
+
+    <!-- Public feed / admin -->
+    <string name="hint_search">Cari nama karyawan...</string>
+    <string name="no_data_title">[ NO DATA FOUND ]</string>
+    <string name="feed_empty_sub">Tidak ada karyawan yang cocok dengan pencarian</string>
+    <string name="admin_empty_sub">Tidak ada data untuk ditampilkan</string>
+    <string name="refresh_syncing">[ SYNCING... ]</string>
+    <string name="btn_logout">LOGOUT</string>
+
+    <!-- Profile settings -->
+    <string name="hint_password_old">Password lama</string>
+    <string name="hint_password_new">Password baru (min 6 karakter)</string>
+    <string name="hint_password_confirm">Konfirmasi password baru</string>
+    <string name="btn_save_password">Simpan Password</string>
+    <string name="label_server_url">Alamat server (http://ip:port)</string>
+    <string name="hint_server_url">http://192.168.1.37:9790</string>
+    <string name="btn_save_server">Simpan Alamat Server</string>
+
+    <!-- Popup menu -->
+    <string name="menu_profile">Pengaturan Profil Saya</string>
+    <string name="menu_logout">Logout</string>
+
+    <!-- Items -->
+    <string name="badge_default">BELUM ABSEN</string>
+    <string name="badge_hadir">HADIR</string>
+    <string name="vote_heart">🤍</string>
+    <string name="vote_crown">👑</string>
+
+    <!-- Photo dialog -->
+    <string name="no_photo">Tidak Ada Foto</string>
+    <string name="btn_reset_zoom">Reset</string>
+    <string name="zoom_100">100%</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_photo">Foto Profil</string>
+    <string name="cd_menu">Menu</string>
+    <string name="cd_change_photo">Ganti Foto Profil</string>
+    <string name="cd_employee_photo">Foto Karyawan</string>
+
+    <!-- Empty (default) -->
+    <string name="empty"></string>
 </resources>

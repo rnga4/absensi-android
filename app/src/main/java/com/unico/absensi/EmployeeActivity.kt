@@ -29,6 +29,15 @@ class EmployeeActivity : AppCompatActivity() {
 
     private var username = ""
     private var pulseAnim: android.animation.ObjectAnimator? = null
+    private var isLoading = false
+
+    private val autoRefreshHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val autoRefreshRunnable = object : Runnable {
+        override fun run() {
+            refreshTodayStatus()
+            autoRefreshHandler.postDelayed(this, 60000)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,9 +88,18 @@ class EmployeeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadData()
+        autoRefreshHandler.postDelayed(autoRefreshRunnable, 60000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        autoRefreshHandler.removeCallbacks(autoRefreshRunnable)
     }
 
     private fun loadData() {
+        if (isLoading) return
+        isLoading = true
+
         pulseAnim?.cancel()
         pbAttendance.visibility = View.VISIBLE
         pulseAnim = android.animation.ObjectAnimator.ofFloat(tvStatus, "alpha", 0.35f, 1.0f).apply {
@@ -112,6 +130,7 @@ class EmployeeActivity : AppCompatActivity() {
                 null
             }
             runOnUiThread {
+                isLoading = false
                 pulseAnim?.cancel()
                 tvStatus.alpha = 1.0f
                 pbAttendance.visibility = View.GONE
@@ -130,35 +149,57 @@ class EmployeeActivity : AppCompatActivity() {
                     tvAvatarInitial.visibility = View.VISIBLE
                 }
 
-                if (self == null) {
-                    tvStatus.text = "[ GAGAL MEMUAT STATUS ]"
-                    tvStatus.setTextColor(ContextCompat.getColor(this, R.color.danger))
-                    return@runOnUiThread
-                }
-                tvDept.text = self.dept
-                val t = self.today
-                tvStatus.text = when (t.status) {
-                    "hadir" -> "[ HADIR ]  ·  ${t.date}"
-                    "telat" -> "[ TELAT ${t.late} MENIT ]  ·  ${t.date}"
-                    "belum" -> "[ BELUM ABSEN ]  ·  ${t.date}"
-                    else -> "[ ${t.status.uppercase()} ]  ·  ${t.date}"
-                }
-                val statusColor = when (t.status) {
-                    "hadir" -> R.color.success
-                    "telat" -> R.color.warning
-                    "belum" -> R.color.danger
-                    else -> R.color.text_primary
-                }
-                tvStatus.setTextColor(ContextCompat.getColor(this, statusColor))
-                tvIn.text = t.inTime
-                tvOut.text = t.outTime
-                tvIn.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
-                tvOut.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+                renderSelf(self, showError = true)
 
                 cardAttendance.alpha = 0.5f
                 cardAttendance.animate().alpha(1.0f).setDuration(250).start()
             }
         }.start()
+    }
+
+    private fun refreshTodayStatus() {
+        if (isLoading) return
+        isLoading = true
+        Thread {
+            val self = try {
+                AbsensiApi.employeeSelf()
+            } catch (e: Exception) {
+                null
+            }
+            runOnUiThread {
+                isLoading = false
+                renderSelf(self, showError = false)
+            }
+        }.start()
+    }
+
+    private fun renderSelf(self: EmployeeSelf?, showError: Boolean) {
+        if (self == null) {
+            if (showError) {
+                tvStatus.text = "[ GAGAL MEMUAT STATUS ]"
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.danger))
+            }
+            return
+        }
+        tvDept.text = self.dept
+        val t = self.today
+        tvStatus.text = when (t.status) {
+            "hadir" -> "[ HADIR ]  ·  ${t.date}"
+            "telat" -> "[ TELAT ${t.late} MENIT ]  ·  ${t.date}"
+            "belum" -> "[ BELUM ABSEN ]  ·  ${t.date}"
+            else -> "[ ${t.status.uppercase()} ]  ·  ${t.date}"
+        }
+        val statusColor = when (t.status) {
+            "hadir" -> R.color.success
+            "telat" -> R.color.warning
+            "belum" -> R.color.danger
+            else -> R.color.text_primary
+        }
+        tvStatus.setTextColor(ContextCompat.getColor(this, statusColor))
+        tvIn.text = t.inTime
+        tvOut.text = t.outTime
+        tvIn.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+        tvOut.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
     }
 
     override fun onBackPressed() {

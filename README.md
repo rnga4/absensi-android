@@ -117,4 +117,8 @@ app/src/main/
 
 ## Lisensi
 
-(c) 2026 - Internal project. Untuk keperluan perusahaan/perorangan.
+Dilisensikan di bawah **MIT License** — bebas dipakai, dimodifikasi, dan didistribusikan dengan tetap mencantumkan atribusi.
+
+Copyright (c) 2026 rnga4
+
+Lihat [LICENSE](LICENSE) untuk detail lengkap.

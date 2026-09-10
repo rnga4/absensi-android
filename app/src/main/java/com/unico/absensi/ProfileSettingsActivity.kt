@@ -75,7 +75,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<TextView>(R.id.tvBack).setOnClickListener {
+        findViewById<TextView>(R.id.btnBack).setOnClickListener {
             finish()
         }
 

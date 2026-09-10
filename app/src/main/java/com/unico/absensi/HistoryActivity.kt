@@ -33,6 +33,10 @@ class HistoryActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvEmpHeader).text =
             "${empName.ifEmpty { "Karyawan" }}  ·  EMP CODE $empCode"
 
+        findViewById<TextView>(R.id.btnBack).setOnClickListener {
+            finish()
+        }
+
         swipeRefresh.setColorSchemeColors(ContextCompat.getColor(this, R.color.accent))
 
         adapter = HistoryAdapter(emptyList())

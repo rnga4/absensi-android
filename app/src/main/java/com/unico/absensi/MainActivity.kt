@@ -67,6 +67,10 @@ class MainActivity : AppCompatActivity() {
         tvRefreshStatus = findViewById(R.id.tvRefreshStatus)
         refreshStrip = findViewById(R.id.refreshStrip)
 
+        findViewById<TextView>(R.id.btnBack).setOnClickListener {
+            finish()
+        }
+
         swipeRefresh.setColorSchemeColors(
             ContextCompat.getColor(this, R.color.bg_primary)
         )

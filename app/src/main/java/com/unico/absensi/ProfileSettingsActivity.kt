@@ -300,8 +300,8 @@ class ProfileSettingsActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-        view.findViewById<TextView>(R.id.tvDialogTitle).text = "Lisensi MIT"
-        view.findViewById<TextView>(R.id.tvDialogCopyright).text = "© 2026 rnga4"
+        val tvDialogSubtitle = view.findViewById<TextView>(R.id.tvDialogSubtitle)
+        tvDialogSubtitle.text = getString(R.string.license_subtitle)
 
         val licenseText = try {
             assets.open("LICENSE.txt").bufferedReader().use { it.readText() }

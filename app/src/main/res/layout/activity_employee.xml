@@ -156,6 +156,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_hero_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -243,18 +246,6 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnHistory"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="16dp"
-                android:text="Riwayat Kehadiran Saya"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                app:backgroundTint="@color/accent"
-                app:cornerRadius="6dp" />
         </LinearLayout>
     </ScrollView>
 

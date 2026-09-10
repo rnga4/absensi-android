@@ -115,7 +115,10 @@ class AdminAdapter(
             tvBadge.background = ContextCompat.getDrawable(itemView.context, bg)
             tvBadge.setTextColor(ContextCompat.getColor(itemView.context, fg))
 
-            itemView.setOnClickListener { onClick(emp) }
+            itemView.setOnClickListener {
+                Haptics.click(itemView.context)
+                onClick(emp)
+            }
         }
 
         private fun loadPhoto(empCode: String, empName: String) {

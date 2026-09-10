@@ -145,6 +145,7 @@ class AbsensiAdapter(
             bindVoteStateOnly(item)
 
             btnVote.setOnClickListener {
+                Haptics.click(itemView.context)
                 val latest = currentItem ?: return@setOnClickListener
 
                 tvVoteIcon.animate().cancel()
@@ -182,6 +183,7 @@ class AbsensiAdapter(
             tvAvatar.background = drawable
 
             val handleAvatarClick = View.OnClickListener {
+                Haptics.click(itemView.context)
                 val latest = currentItem ?: return@OnClickListener
                 val bmp = photoCache[latest.empCode]
                 onAvatarClick?.invoke(latest, bmp)

@@ -34,6 +34,7 @@ class HistoryActivity : AppCompatActivity() {
             "${empName.ifEmpty { "Karyawan" }}  ·  EMP CODE $empCode"
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener {
+            Haptics.click(this)
             finish()
         }
 

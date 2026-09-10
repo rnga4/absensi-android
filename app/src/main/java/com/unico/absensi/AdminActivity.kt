@@ -56,10 +56,10 @@ class AdminActivity : AppCompatActivity() {
 
         bindStatLabelColors()
 
-        statCards["total"]!!.setOnClickListener { setFilter("") }
-        statCards["hadir"]!!.setOnClickListener { setFilter("hadir") }
-        statCards["telat"]!!.setOnClickListener { setFilter("telat") }
-        statCards["belum"]!!.setOnClickListener { setFilter("belum") }
+        statCards["total"]!!.setOnClickListener { Haptics.click(this); setFilter("") }
+        statCards["hadir"]!!.setOnClickListener { Haptics.click(this); setFilter("hadir") }
+        statCards["telat"]!!.setOnClickListener { Haptics.click(this); setFilter("telat") }
+        statCards["belum"]!!.setOnClickListener { Haptics.click(this); setFilter("belum") }
 
         adapter = AdminAdapter(emptyList()) { emp ->
             startActivity(Intent(this, HistoryActivity::class.java)
@@ -70,6 +70,7 @@ class AdminActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         findViewById<TextView>(R.id.tvLogout).setOnClickListener {
+            Haptics.click(this)
             LogoutHelper.confirmAndLogout(this)
         }
 

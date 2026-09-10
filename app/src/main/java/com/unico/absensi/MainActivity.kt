@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
         refreshStrip = findViewById(R.id.refreshStrip)
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener {
+            Haptics.click(this)
             finish()
         }
 
@@ -440,7 +441,7 @@ class MainActivity : AppCompatActivity() {
         tvName.text = employee.name
         tvDept.text = employee.dept.uppercase()
 
-        btnClose.setOnClickListener { dialog.dismiss() }
+        btnClose.setOnClickListener { Haptics.click(this); dialog.dismiss() }
 
         var currentZoom = 1.0f
 
@@ -466,18 +467,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnZoomIn.setOnClickListener {
+            Haptics.click(this)
             if (currentZoom < 4.0f) {
                 currentZoom += 0.4f
                 updateScale()
             }
         }
         btnZoomOut.setOnClickListener {
+            Haptics.click(this)
             if (currentZoom > 0.6f) {
                 currentZoom -= 0.4f
                 updateScale()
             }
         }
         btnZoomReset.setOnClickListener {
+            Haptics.click(this)
             currentZoom = 1.0f
             updateScale()
         }

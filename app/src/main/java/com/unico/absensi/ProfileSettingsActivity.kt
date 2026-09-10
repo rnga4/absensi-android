@@ -74,18 +74,24 @@ class ProfileSettingsActivity : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.btnBack).setOnClickListener {
+            Haptics.click(this)
             finish()
         }
 
         flAvatar.setOnClickListener {
+            Haptics.click(this)
             pickPhotoLauncher.launch("image/*")
         }
 
         tvAboutName.text = "${getString(R.string.app_name)}  v${BuildConfig.VERSION_NAME}"
         tvAboutCopyright.text = "© 2026 rnga4"
-        tvLicense.setOnClickListener { showLicenseDialog() }
+        tvLicense.setOnClickListener {
+            Haptics.click(this)
+            showLicenseDialog()
+        }
 
         btnSavePassword.setOnClickListener {
+            Haptics.click(this)
             changePassword()
         }
 

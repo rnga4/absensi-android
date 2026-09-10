@@ -32,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
             val u = etUsername.text.toString().trim()
             val p = etPassword.text.toString()
             if (u.isEmpty() || p.isEmpty()) return@setOnClickListener
+            Haptics.click(this)
 
             tvError.visibility = View.GONE
             btnLogin.isEnabled = false
@@ -56,6 +57,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnPublic.setOnClickListener {
+            Haptics.click(this)
             startActivity(Intent(this, MainActivity::class.java))
         }
     }

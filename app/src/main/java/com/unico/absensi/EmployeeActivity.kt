@@ -29,7 +29,6 @@ class EmployeeActivity : AppCompatActivity() {
     private lateinit var tvIn: TextView
     private lateinit var tvOut: TextView
     private lateinit var tvLoveCount: TextView
-    private lateinit var btnHistory: MaterialButton
     private lateinit var btnPublic: MaterialButton
     private lateinit var cardAttendance: View
 
@@ -61,16 +60,17 @@ class EmployeeActivity : AppCompatActivity() {
         tvIn = findViewById(R.id.tvIn)
         tvOut = findViewById(R.id.tvOut)
         tvLoveCount = findViewById(R.id.tvLoveCount)
-        btnHistory = findViewById(R.id.btnHistory)
         btnPublic = findViewById(R.id.btnPublic)
 
         btnPublic.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
 
         findViewById<ImageView>(R.id.btnMenu).setOnClickListener {
+            Haptics.click(this)
             showProfileMenu()
         }
 
         flAvatar.setOnClickListener {
+            Haptics.click(this)
             startActivity(Intent(this, ProfileSettingsActivity::class.java))
         }
 
@@ -81,12 +81,14 @@ class EmployeeActivity : AppCompatActivity() {
         tvEmpCode.text = "EMP CODE  $code"
         tvAvatarInitial.text = AdminAdapter.getInitials(prefsUser?.name ?: "?")
 
-        btnHistory.setOnClickListener {
+        cardAttendance.setOnClickListener {
+            Haptics.click(this)
             startActivity(Intent(this, HistoryActivity::class.java)
                 .putExtra("emp_code", code)
                 .putExtra("emp_name", prefsUser?.name))
         }
         btnPublic.setOnClickListener {
+            Haptics.click(this)
             startActivity(Intent(this, MainActivity::class.java))
         }
     }

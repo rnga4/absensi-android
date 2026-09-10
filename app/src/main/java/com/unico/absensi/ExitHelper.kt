@@ -13,6 +13,11 @@ object ExitHelper {
             .setPositiveButton("Keluar") { _, _ ->
                 activity.finishAffinity()
             }
+            .setBackground(
+                android.graphics.drawable.ColorDrawable(
+                    androidx.core.content.ContextCompat.getColor(activity, R.color.bg_primary)
+                )
+            )
             .show()
     }
 }

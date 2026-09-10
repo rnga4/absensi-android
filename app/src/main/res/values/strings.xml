@@ -9,7 +9,11 @@
     <string name="tag_history">[ HISTORY ]</string>
     <string name="tag_change_password">[ GANTI PASSWORD ]</string>
     <string name="tag_about_license">[ TENTANG &amp; LISENSI ]</string>
-    <string name="tag_server">[ KONEKSI SERVER ]</string>
+    <string name="tag_license">[ LICENSE ]</string>
+    <string name="license_subtitle">Bebas pakai, modifikasi &amp; distribusi</string>
+    <string name="license_label">LISENSI</string>
+    <string name="license_third_party_label">PUSTAKA PIHAK KETIGA</string>
+    <string name="btn_done">Selesai</string>
 
     <!-- Titles -->
     <string name="title_login">Masuk</string>
@@ -50,9 +54,6 @@
     <string name="hint_password_new">Password baru (min 6 karakter)</string>
     <string name="hint_password_confirm">Konfirmasi password baru</string>
     <string name="btn_save_password">Simpan Password</string>
-    <string name="label_server_url">Alamat server (http://ip:port)</string>
-    <string name="hint_server_url">http://192.168.1.37:9790</string>
-    <string name="btn_save_server">Simpan Alamat Server</string>
 
     <!-- Popup menu -->
     <string name="menu_profile">Pengaturan Profil Saya</string>

@@ -31,8 +31,6 @@ class ProfileSettingsActivity : AppCompatActivity() {
     private lateinit var tvAboutName: TextView
     private lateinit var tvAboutCopyright: TextView
     private lateinit var tvLicense: TextView
-    private lateinit var etServerUrl: EditText
-    private lateinit var btnSaveServer: MaterialButton
 
     private var username = ""
 
@@ -60,16 +58,6 @@ class ProfileSettingsActivity : AppCompatActivity() {
         tvAboutName = findViewById(R.id.tvAboutName)
         tvAboutCopyright = findViewById(R.id.tvAboutCopyright)
         tvLicense = findViewById(R.id.tvLicense)
-        etServerUrl = findViewById(R.id.etServerUrl)
-        btnSaveServer = findViewById(R.id.btnSaveServer)
-
-        val customUrl = Prefs.getCustomBaseUrl()
-        etServerUrl.setText(customUrl ?: ApiConfig.baseUrls.first())
-
-        btnSaveServer.setOnClickListener {
-            Haptics.click(this)
-            saveServerUrl()
-        }
 
         applyAvatarClip()
 
@@ -281,6 +269,11 @@ class ProfileSettingsActivity : AppCompatActivity() {
                     MaterialAlertDialogBuilder(this)
                         .setMessage(result)
                         .setPositiveButton("Oke", null)
+                        .setBackground(
+                            android.graphics.drawable.ColorDrawable(
+                                ContextCompat.getColor(this, R.color.bg_primary)
+                            )
+                        )
                         .show()
                 } else {
                     showPassError("Gagal mengubah password. Cek password lama Anda.")
@@ -289,39 +282,42 @@ class ProfileSettingsActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun saveServerUrl() {
-        var url = etServerUrl.text.toString().trim()
-        tvPassMessage.visibility = View.VISIBLE
-        if (url.isEmpty() ||
-            (!url.startsWith("http://") && !url.startsWith("https://"))
-        ) {
-            tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.danger))
-            tvPassMessage.text = "Alamat server tidak valid. Contoh: http://192.168.1.37:9790"
-            return
-        }
-        url = url.trimEnd('/')
-        while (url.endsWith("/")) url = url.dropLast(1)
-        Prefs.setCustomBaseUrl(url)
-        tvPassMessage.setTextColor(ContextCompat.getColor(this, R.color.success))
-        tvPassMessage.text = "Alamat server disimpan. Aplikasi akan memakai server ini lebih dulu."
-    }
+    private var currentLicenseDialog: android.app.Dialog? = null
 
     private fun showLicenseDialog() {
+        val dialog = android.app.Dialog(this)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setWindowAnimations(R.style.DialogAnim)
+        val view = layoutInflater.inflate(R.layout.dialog_license, null)
+        dialog.setContentView(view)
+
+        view.findViewById<TextView>(R.id.btnClose).setOnClickListener {
+            Haptics.click(this)
+            dialog.dismiss()
+        }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDone).setOnClickListener {
+            Haptics.click(this)
+            dialog.dismiss()
+        }
+
+        view.findViewById<TextView>(R.id.tvDialogTitle).text = "Lisensi MIT"
+        view.findViewById<TextView>(R.id.tvDialogCopyright).text = "© 2026 rnga4"
+
         val licenseText = try {
             assets.open("LICENSE.txt").bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             "Copyright (c) 2026 rnga4\n\nMIT License. Bebas dipakai, dimodifikasi, dan didistribusikan dengan tetap mencantumkan atribusi."
         }
-        val thirdParty = "\n\nLibrary pihak ketiga:\n" +
-            "• OkHttp — Apache License 2.0\n" +
+        view.findViewById<TextView>(R.id.tvLicenseText).text = licenseText.trim()
+
+        val thirdParty = "• OkHttp — Apache License 2.0\n" +
             "• Kotlin — Apache License 2.0\n" +
             "• AndroidX — Apache License 2.0\n" +
             "• Material Components — Apache License 2.0"
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Lisensi MIT")
-            .setMessage(licenseText + thirdParty)
-            .setPositiveButton("Tutup", null)
-            .show()
+        view.findViewById<TextView>(R.id.tvThirdParty).text = thirdParty
+
+        currentLicenseDialog = dialog
+        dialog.show()
     }
 
     private fun showPassError(msg: String) {

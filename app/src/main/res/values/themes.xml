@@ -8,4 +8,13 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="colorAccent">@color/accent</item>
     </style>
+
+    <style name="DialogAnim" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/dialog_in</item>
+        <item name="android:windowExitAnimation">@anim/dialog_out</item>
+    </style>
+
+    <style name="ThemeOverlay.Absensi.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
+    </style>
 </resources>

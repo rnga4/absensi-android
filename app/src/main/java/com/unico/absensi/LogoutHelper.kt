@@ -20,6 +20,11 @@ object LogoutHelper {
                 activity.finish()
             }
             .setNegativeButton("Batal", null)
+            .setBackground(
+                android.graphics.drawable.ColorDrawable(
+                    androidx.core.content.ContextCompat.getColor(activity, R.color.bg_primary)
+                )
+            )
             .show()
     }
 }

@@ -2,17 +2,10 @@ package com.unico.absensi
 
 object ApiConfig {
 
-    private val defaultBaseUrls = listOf(
+    val baseUrls = listOf(
         "http://192.168.1.37:9790",
         "http://100.102.13.11:9790"
     )
-
-    val baseUrls: List<String>
-        get() {
-            val custom = Prefs.getCustomBaseUrl()
-            if (custom.isNullOrBlank()) return defaultBaseUrls
-            return listOf(custom) + defaultBaseUrls.filter { it != custom }
-        }
 
     const val LOGIN = "/api_login.php"
     const val PROFILE = "/profile.php?format=json"

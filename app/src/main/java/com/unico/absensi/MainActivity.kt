@@ -427,6 +427,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = android.app.Dialog(this)
         dialog.setContentView(R.layout.dialog_employee_photo)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setWindowAnimations(R.style.DialogAnim)
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.90).toInt(),
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT

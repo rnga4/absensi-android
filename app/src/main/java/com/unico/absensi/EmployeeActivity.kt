@@ -68,6 +68,10 @@ class EmployeeActivity : AppCompatActivity() {
             startActivity(Intent(this, ProfileSettingsActivity::class.java))
         }
 
+        findViewById<ImageView>(R.id.ivSettings).setOnClickListener {
+            startActivity(Intent(this, ProfileSettingsActivity::class.java))
+        }
+
         val prefsUser = Prefs.current()
         username = prefsUser?.username ?: ""
         tvName.text = prefsUser?.name ?: "-"

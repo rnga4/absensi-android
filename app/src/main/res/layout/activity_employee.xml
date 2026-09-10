@@ -42,6 +42,18 @@
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
+                <ImageView
+                    android:id="@+id/ivSettings"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:contentDescription="Pengaturan Profil"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_settings"
+                    android:tint="@color/text_secondary" />
+
                 <TextView
                     android:id="@+id/tvLogout"
                     android:layout_width="wrap_content"

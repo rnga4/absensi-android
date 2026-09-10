@@ -90,6 +90,13 @@ class ProfileSettingsActivity : AppCompatActivity() {
             showLicenseDialog()
         }
 
+        findViewById<android.view.View>(R.id.btnGitHubStar).setOnClickListener {
+            Haptics.click(this)
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/rnga4/absensi-android")))
+            } catch (_: Exception) {}
+        }
+
         btnSavePassword.setOnClickListener {
             Haptics.click(this)
             changePassword()

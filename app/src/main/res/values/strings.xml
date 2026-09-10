@@ -75,6 +75,10 @@
     <string name="cd_menu">Menu</string>
     <string name="cd_change_photo">Ganti Foto Profil</string>
     <string name="cd_employee_photo">Foto Karyawan</string>
+    <string name="cd_github">GitHub</string>
+
+    <!-- GitHub star -->
+    <string name="btn_github_star">Star on GitHub</string>
 
     <!-- Empty (default) -->
     <string name="empty"></string>

@@ -28,7 +28,6 @@ class ProfileSettingsActivity : AppCompatActivity() {
     private lateinit var etConfirmPassword: EditText
     private lateinit var tvPassMessage: TextView
     private lateinit var btnSavePassword: MaterialButton
-    private lateinit var btnChangePhoto: MaterialButton
     private lateinit var tvAboutName: TextView
     private lateinit var tvAboutCopyright: TextView
     private lateinit var tvLicense: TextView
@@ -56,7 +55,6 @@ class ProfileSettingsActivity : AppCompatActivity() {
         etConfirmPassword = findViewById(R.id.etConfirmPassword)
         tvPassMessage = findViewById(R.id.tvPassMessage)
         btnSavePassword = findViewById(R.id.btnSavePassword)
-        btnChangePhoto = findViewById(R.id.btnChangePhoto)
         tvAboutName = findViewById(R.id.tvAboutName)
         tvAboutCopyright = findViewById(R.id.tvAboutCopyright)
         tvLicense = findViewById(R.id.tvLicense)
@@ -79,7 +77,7 @@ class ProfileSettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        btnChangePhoto.setOnClickListener {
+        flAvatar.setOnClickListener {
             pickPhotoLauncher.launch("image/*")
         }
 
@@ -166,8 +164,8 @@ class ProfileSettingsActivity : AppCompatActivity() {
             tvPassMessage.visibility = View.VISIBLE
             return
         }
-        btnChangePhoto.isEnabled = false
-        btnChangePhoto.text = "Mengunggah..."
+        flAvatar.isEnabled = false
+        flAvatar.alpha = 0.6f
 
         Thread {
             val msg = try {
@@ -176,8 +174,8 @@ class ProfileSettingsActivity : AppCompatActivity() {
                 null
             }
             runOnUiThread {
-                btnChangePhoto.isEnabled = true
-                btnChangePhoto.text = "Ganti Foto"
+                flAvatar.isEnabled = true
+                flAvatar.alpha = 1.0f
                 tvPassMessage.visibility = View.VISIBLE
                 if (msg != null) {
                     setResult(RESULT_OK)

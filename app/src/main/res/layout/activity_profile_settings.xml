@@ -52,6 +52,8 @@
                     android:layout_width="96dp"
                     android:layout_height="96dp"
                     android:layout_gravity="center_horizontal"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:clipToOutline="true">
 
                     <ImageView
@@ -70,22 +72,18 @@
                         android:textSize="34sp"
                         android:textStyle="bold"
                         android:visibility="gone" />
-                </FrameLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnChangePhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="14dp"
-                    android:text="Ganti Foto"
-                    android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    app:backgroundTint="@color/accent_light"
-                    app:cornerRadius="6dp"
-                    app:strokeColor="@color/border_dark"
-                    app:strokeWidth="1.5dp" />
+                    <ImageView
+                        android:id="@+id/ivCameraBadge"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="bottom|end"
+                        android:background="@drawable/bg_camera_badge"
+                        android:contentDescription="Ganti Foto Profil"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_camera_badge"
+                        android:tint="@color/accent" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvName"

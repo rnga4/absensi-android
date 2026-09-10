@@ -1,19 +1,44 @@
 # Absensi Android
 
-> *Native Android app untuk tracking absensi karyawan - Swiss editorial, monokrom, & modern-minimalist.*
+> *Native Android app untuk monitoring kehadiran karyawan — login admin/staff, live feed, voting love, dark mode.*
 
-Aplikasi Android native (Kotlin) untuk memantau karyawan yang **belum absen**. Terhubung ke API internal, menampilkan daftar per departemen dengan orientasi desain **Komi Store** (`komistore.app`) - modern minimalist SaaS + Swiss-style typography + subtle neo-brutalist.
+Aplikasi Android native (Kotlin) dengan **multi-role** (admin & staff). Fitur login/session, live feed karyawan real-time, voting love, photo profile, riwayat kehadiran, pull-to-refresh, notifikasi WorkManager, haptics, dan desain **Komi Store** (`komistore.app`) — modern minimalist SaaS + Swiss-style typography.
 
 ---
 
 ## Fitur
 
-- **Daftar real-time** karyawan yang belum absen, dikelompokkan per departemen
+### Auth & Role
+- **Login multi-role** — admin (full monitoring) / staff (personal dashboard)
+- **Session management** — cookie `PHPSESSID` tersimpan (`EncryptedSharedPreferences` atau plain fallback)
+- **Auto-logout 401** — token expired → hapus sesi → navigasi ke LoginActivity
+
+### Staff
+- **Dashboard personal** — status IN/OUT, foto profil, badge hadir/belum
+- **Ganti password** dari pengaturan profil
+- **Riwayat kehadiran** (`HistoryActivity`) — date picker, foto presensi
+- **Index Publik** — lihat daftar karyawan semua
+
+### Admin / Public
+- **Live feed** — daftar karyawan yang belum absen, dikelompokkan per departemen
 - **Pencarian** nama karyawan (filter dinamis per departemen)
-- **Pull-to-refresh custom** - progress strip Swiss yang mengisi + badge status `[ SYNCING... ]` -> `[ DONE ]`
-- **Notifikasi berkala** via WorkManager (interval 30 menit)
-- **Failover otomatis** antar endpoint API (jika satu mati, coba yang lain)
-- **Adaptive launcher icon** untuk semua ukuran layar
+- **Pull-to-refresh custom** — progress strip Swiss + badge `[ SYNCING... ]` → `[ DONE ]`
+
+### Social & UI
+- **Voting love** — tap ❤️ untuk dukung karyawan, guard double-vote
+- **Foto profil** — upload dari galeri/kamera, preview pinch-to-zoom
+- **Haptics** di semua titik tap (VibrationEffect + fallback)
+- **Dark mode** otomatis (DayNight)
+- **Dialog lisensi MIT** — custom animated modal dengan header gradient
+- **Tombol GitHub Star** — redirect ke repo untuk star
+
+### Background & Notification
+- **WorkManager** periodic alert (jam 06–22, maks 1× per 3 jam)
+- **Notifikasi** via `NotificationChannel` + `NotificationCompat`
+
+### Networking
+- **Failover otomatis** antar endpoint API (2 server LAN/Tailscale)
+- **Client terpisah** — upload (read/write timeout 30s) & regular
 
 ---
 
@@ -23,35 +48,39 @@ Aplikasi Android native (Kotlin) untuk memantau karyawan yang **belum absen**. T
 |---|---|
 | Bahasa | Kotlin |
 | Min / Target SDK | 24 / 34 |
-| UI | XML + ConstraintLayout + RecyclerView, Material |
+| UI | XML + ConstraintLayout + RecyclerView + SwipeRefreshLayout, Material |
 | Networking | OkHttp 4.12 |
 | Background | WorkManager (PeriodicWorkRequest) |
 | Notifikasi | NotificationChannel + NotificationCompat |
+| Storage | EncryptedSharedPreferences (Security-Crypto) + SharedPreferences fallback |
+| Build | Gradle Kotlin DSL, viewBinding, buildConfig |
+| CI/CD | GitHub Actions (`build-apk.yml`) |
 
 ---
 
 ## Build
 
 ```bash
-# Build Debug APK
+# Debug
 ./gradlew assembleDebug --no-daemon
 
-# Clean & build
-./gradlew clean assembleDebug --no-daemon
+# Release (butuh keystore.properties — copy dari keystore.properties.example)
+./gradlew assembleRelease --no-daemon
 
-# Salin APK ke root (absensi.apk)
-cp app/build/outputs/apk/debug/app-debug.apk absensi.apk
+# Output
+app/build/outputs/apk/debug/app-debug.apk
+app/build/outputs/apk/release/app-release.apk
 ```
 
-Output: `app/build/outputs/apk/debug/app-debug.apk`
+**Release signing** (opsional): buat `keystore.properties` dari template, isi path keystore + credentials. Kalau tidak ada, fallback ke debug signing.
 
 ---
 
 ## API
 
 App memanggil endpoint dengan **failover otomatis**:
-1. `http://192.168.1.37:9790/api_public.php`
-2. `http://100.102.13.11:9790/api_public.php`
+1. `http://192.168.1.37:9790/api_public.php` (LAN)
+2. `http://100.102.13.11:9790/api_public.php` (Tailscale)
 
 **Response JSON:**
 ```json
@@ -73,45 +102,46 @@ App memanggil endpoint dengan **failover otomatis**:
 
 ---
 
-## Design System - Komi Store Aesthetic
-
-> *Modern Minimalist SaaS + Editorial Swiss-Style Typography + Subtle Neo-Brutalist Elements*
-
-**Colors** (`colors.xml`):
-- `bg_primary` `#FAFAFA` · `surface` `#FFFFFF` · `text_primary` `#09090B` · `text_secondary` `#71717A`
-- Stroke tegas `1.5dp` (`border_crisp` `#E4E4E7`), avatar monokrom + badge status merah/hijau
-
-**Typography & Layout:**
-- Hero headline `28sp` bold `#09090B`, letter-spacing `-0.03`
-- Section header Swiss: `/// TEKNOLOGI - 4 KARYAWAN` (uppercase, spacing `0.10`)
-- Technical pills: `[ SYSTEM / LIVE FEED ]`, `[ BELUM ABSEN ]`, `[ SYNCING... ]`
-
----
-
 ## Struktur Utama
 
 ```
 app/src/main/
 ├── AndroidManifest.xml
 ├── java/com/unico/absensi/
-│   ├── MainActivity.kt        # View logic, search filter, pull-to-refresh
-│   ├── AbsensiAdapter.kt      # RecyclerView adapter (Swiss headers & avatars)
-│   ├── Models.kt              # ListRow sealed class (DeptHeader & Employee)
-│   ├── AbsensiWorker.kt       # WorkManager periodic alert (30 menit)
-│   └── NotificationHelper.kt  # Notification channel & builder
-└── res/
-    ├── drawable/              # Shapes: badge, avatar, tag pill, refresh strip, icon fg/bg
-    ├── layout/                # activity_main, item_employee, item_department_header
-    ├── mipmap-*/              # Launcher icon (legacy + adaptive)
-    └── values/                # colors, strings, themes
+│   ├── MainActivity.kt          # Staff dashboard + live feed admin
+│   ├── LoginActivity.kt         # Login multi-role + cookie session
+│   ├── HistoryActivity.kt       # Riwayat kehadiran + date picker
+│   ├── ProfileSettingsActivity.kt # Ganti password, profil, lisensi
+│   ├── EmployeeActivity.kt      # Live feed admin (SwipeRefresh)
+│   ├── AbsensiAdapter.kt        # RecyclerView adapter (Swiss headers & avatars)
+│   ├── AbsensiApi.kt            # API calls, LruCache foto, voting
+│   ├── ApiConfig.kt             # Endpoint failover (static baseUrls)
+│   ├── ApiClient.kt             # OkHttp singleton, 401 handler, cookie store
+│   ├── Models.kt                # Data classes (Employee, Attendance, LoginResponse)
+│   ├── Prefs.kt                 # SharedPreferences + session cache
+│   ├── Ui.kt                    # runOnUiThreadSafe + utilities
+│   ├── Haptics.kt               # VibrationEffect wrapper
+│   ├── AbsensiWorker.kt         # WorkManager periodic notification
+│   └── NotificationHelper.kt    # Notification channel & builder
+├── res/
+│   ├── anim/                    # dialog_in/out (pop animation)
+│   ├── drawable/                # Shapes: bg_hero_card, bg_tag_pill, bg_accent_bar, icons
+│   ├── layout/                  # activity_main, activity_login, dialog_license, etc.
+│   ├── mipmap-*/                # Launcher icon (legacy + adaptive)
+│   └── values/                  # colors, strings, themes (DayNight)
+├── assets/
+│   └── LICENSE.txt              # MIT license text
+└── .github/workflows/
+    └── build-apk.yml            # CI: assembleDebug + assembleRelease
 ```
 
 ---
 
 ## Release / APK
 
-- `absensi.apk` - shortcut APK compiled di root project
-- Versi: `1.0` (`versionCode 1`) · `applicationId: com.unico.absensi`
+- `versionCode 2` · `versionName "1.1.0"`
+- `applicationId: com.unico.absensi`
+- CI build otomatis via GitHub Actions per push ke `main`
 
 ---
 

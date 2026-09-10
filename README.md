@@ -6,6 +6,18 @@ Aplikasi Android native (Kotlin) dengan **multi-role** (admin & staff). Fitur lo
 
 ---
 
+## Screenshots
+
+| Login | Staff Dashboard | Live Feed |
+|:---:|:---:|:---:|
+| ![Login](screenshots/login.jpg) | ![Staff Dashboard](screenshots/staff-dashboard.jpg) | ![Live Feed](screenshots/live-feed.jpg) |
+
+| History | Profile Settings | Admin Console |
+|:---:|:---:|:---:|
+| ![History](screenshots/history.jpg) | ![Profile Settings](screenshots/profile-settings.jpg) | ![Admin Console](screenshots/admin-console.jpg) |
+
+---
+
 ## Fitur
 
 ### Auth & Role

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_primary">#0E0E12</color>
+    <color name="surface">#16161B</color>
+    <color name="accent">#4F46E5</color>
+    <color name="accent_light">#232329</color>
+    <color name="accent_dark">#000000</color>
+    <color name="primary_dark">#4F46E5</color>
+    <color name="text_primary">#F4F4F5</color>
+    <color name="text_secondary">#A1A1AA</color>
+    <color name="text_tertiary">#71717A</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <color name="border_crisp">#2A2A31</color>
+    <color name="border_dark">#3F3F46</color>
+    <color name="divider">#2A2A31</color>
+    <color name="search_bg">#16161B</color>
+    <color name="search_stroke">#2A2A31</color>
+
+    <color name="danger">#F87171</color>
+    <color name="danger_light">#2A1215</color>
+    <color name="warning">#FBBF24</color>
+    <color name="success">#4ADE80</color>
+    <color name="success_light">#12231A</color>
+
+    <color name="badge_bg">#232329</color>
+    <color name="badge_text">#F4F4F5</color>
+    <color name="badge_border">#3F3F46</color>
+
+    <color name="badge_danger_bg">#2A1215</color>
+    <color name="badge_danger_text">#F87171</color>
+    <color name="badge_danger_border">#7F1D1D</color>
+
+    <color name="badge_success_bg">#12231A</color>
+    <color name="badge_success_text">#4ADE80</color>
+    <color name="badge_success_border">#14532D</color>
+
+    <color name="avatar_1">#3F3F46</color>
+    <color name="avatar_2">#0F766E</color>
+    <color name="avatar_3">#9A3412</color>
+    <color name="avatar_4">#1D4ED8</color>
+    <color name="avatar_5">#7E22CE</color>
+    <color name="avatar_6">#BE185D</color>
+    <color name="avatar_7">#047857</color>
+</resources>

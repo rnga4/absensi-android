@@ -290,6 +290,10 @@ class ProfileSettingsActivity : AppCompatActivity() {
         dialog.window?.setWindowAnimations(R.style.DialogAnim)
         val view = layoutInflater.inflate(R.layout.dialog_license, null)
         dialog.setContentView(view)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.85).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 
         view.findViewById<TextView>(R.id.btnClose).setOnClickListener {
             Haptics.click(this)
